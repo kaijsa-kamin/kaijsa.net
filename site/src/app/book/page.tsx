@@ -8,7 +8,6 @@ type Chapter = { n: string; title: string; note?: string; appendix?: boolean };
 type Book = {
   title: string;
   subtitle: string;
-  status?: string;
   blurb: string[];
   chapters: Chapter[];
   excerpt: { from: string; text: string };
@@ -66,19 +65,9 @@ export default function BookPage() {
   const chapters = book.chapters.filter((c) => !c.appendix);
   const appendices = book.chapters.filter((c) => c.appendix);
 
-  // counted from the list itself, so the line cannot go stale
-  const count = [
-    `${chapters.length} chapters`,
-    appendices.length ? `${appendices.length} appendices` : "",
-    book.status ?? "",
-  ]
-    .filter(Boolean)
-    .join(" · ");
-
   return (
     <div className="shell page">
       <header className="page-head">
-        <p className="eyebrow">{count}</p>
         <h1>{book.title}</h1>
         <p className="lede" style={{ marginTop: "1.6rem" }}>
           {book.subtitle}
