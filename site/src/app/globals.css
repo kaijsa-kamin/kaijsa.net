@@ -68,7 +68,9 @@ body {
   background: var(--ink);
   color: var(--text);
   font-family: var(--font-body);
-  font-size: 16px;
+  /* one step down from 16: every size on the site is in rem, so this scales
+     the whole scale rather than one element of it */
+  font-size: 15px;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
