@@ -68,9 +68,9 @@ body {
   background: var(--ink);
   color: var(--text);
   font-family: var(--font-body);
-  /* one step down from 16: every size on the site is in rem, so this scales
-     the whole scale rather than one element of it */
-  font-size: 15px;
+  /* two steps down from the 16px default: every size on the site is in rem,
+     so this moves the whole scale rather than one element of it */
+  font-size: 14px;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
