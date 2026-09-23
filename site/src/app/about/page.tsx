@@ -13,8 +13,8 @@ export default function AboutPage() {
         <h1>About</h1>
         <p className="lede" style={{ marginTop: "1.8rem" }}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod
-          tempor incididunt ut labore et dolore magna aliqua — a face assembled
-          from circles, a palette that runs from cream to brick.
+          tempor incididunt ut labore et dolore magna aliqua — ut enim ad minim
+          veniam, quis nostrud exercitation ullamco laboris.
         </p>
       </header>
 
@@ -95,13 +95,13 @@ export default function AboutPage() {
             <dt>Active since</dt>
             <dd>Lorem MMXXVI</dd>
             <dt>Medium</dt>
-            <dd>Particle fields, discs, hairlines</dd>
+            <dd>Lorem ipsum, dolor sit</dd>
             <dt>Palette</dt>
-            <dd>Cream → brick, on black</dd>
+            <dd>Consectetur adipiscing</dd>
             <dt>Favourite angle</dt>
-            <dd>137.5°</dd>
+            <dd>Tempor incididunt</dd>
             <dt>Channel</dt>
-            <dd>Opening soon</dd>
+            <dd>Sed do eiusmod</dd>
           </dl>
         </aside>
       </div>
