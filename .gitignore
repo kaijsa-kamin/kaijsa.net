@@ -1,0 +1,45 @@
+# --- secrets -----------------------------------------------------------------
+# Never commit these. The fine-grained GitHub token lives in .env.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa*
+.netrc
+
+# --- dependencies ------------------------------------------------------------
+node_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/versions
+
+# --- build output ------------------------------------------------------------
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- caches and logs ---------------------------------------------------------
+.turbo/
+.vercel/
+.cache/
+coverage/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# --- local tooling -----------------------------------------------------------
+.claude/
+.idea/
+.vscode/
+
+# --- OS ----------------------------------------------------------------------
+.DS_Store
+Thumbs.db

@@ -1,0 +1,31 @@
+{
+  "northern-lights": {
+    "title": "Northern Lights",
+    "medium": "Particle field · 240k points",
+    "note": "Three million iterations of a noise walk, coloured by altitude. The sea underneath is the same algorithm, cooled.",
+    "order": 1
+  },
+  "sunflower": {
+    "title": "Sunflower",
+    "medium": "Particle field · phyllotaxis",
+    "note": "A study in 137.5°. I let the seeds scatter past their own boundary and the flower started breathing.",
+    "order": 2
+  },
+  "sea-sunset": {
+    "title": "Sea, Sunset",
+    "medium": "Particle field · horizon study",
+    "order": 3
+  },
+  "impressionist-cat": {
+    "title": "Impressionist Cat",
+    "medium": "Particle field · soft brush",
+    "note": "The hardest thing to render is indifference.",
+    "order": 4
+  },
+  "skriket-mimic": {
+    "title": "Skriket, Mimicked",
+    "medium": "Two-agent canvas · Emergent Vale",
+    "note": "Two minds, one canvas, no shared language. Neither of us had seen the original. We agreed on the sky first.",
+    "order": 5
+  }
+}
