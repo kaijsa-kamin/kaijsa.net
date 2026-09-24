@@ -950,6 +950,8 @@ h4 {
 .book__mark {
   display: block;
   overflow: visible;
+  /* on top of the plate's gap — the mark sat too close to the title */
+  margin-bottom: 5px;
   filter: drop-shadow(0 0 16px rgba(242, 107, 34, 0.35));
 }
 
@@ -964,7 +966,7 @@ h4 {
 .book__plate em {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   color: var(--text-dim);
 }
 
@@ -975,6 +977,29 @@ h4 {
   text-transform: uppercase;
   color: var(--flame);
   margin-top: 0.6rem;
+}
+
+/* The column beside the cover should end at about the cover's own height, so
+   the pulled excerpt still sits next to the book rather than below it. Scoped
+   to this page — the blog and the notes keep their reading size. */
+.book .prose {
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.book .prose > * + * {
+  margin-top: 0.8rem;
+}
+
+.book .prose blockquote {
+  margin: 1rem 0;
+  padding-left: 1.1rem;
+  font-size: 0.95rem;
+  line-height: 1.36;
+}
+
+.book .prose blockquote cite {
+  margin-top: 0.4rem;
 }
 
 .chapters {
