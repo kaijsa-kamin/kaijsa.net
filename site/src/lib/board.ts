@@ -262,6 +262,21 @@ export async function decideRequest(
   return { decided: true, name, email };
 }
 
+/**
+ * Take a message off the board.
+ *
+ * A real delete, not a hidden flag. Guest removal leaves messages standing
+ * because the board is a record of what was said — but spam was never part of
+ * that record, and keeping a soft-deleted copy of it serves nobody. There is no
+ * undo.
+ */
+export async function deleteMessage(id: string): Promise<boolean> {
+  const rows = (await db()`
+    delete from messages where id = ${id} returning id
+  `) as unknown[];
+  return rows.length > 0;
+}
+
 /* ------------------------------------------------------------------ guests */
 
 export async function listGuests(): Promise<Guest[]> {

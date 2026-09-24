@@ -367,9 +367,15 @@ curl -s $B/api/board/messages
 # the guest list, and removing someone
 curl -s -H "$H" $B/api/admin/guests
 curl -s -H "$H" -X DELETE $B/api/admin/guests/6
+
+# take a message off the board — spam, or something that should not stand
+curl -s -H "$H" -X DELETE $B/api/admin/messages/27
 ```
 
-Removing a guest leaves their messages standing. The board is a record.
+Removing a guest leaves their messages standing: the board is a record of what
+was said, and taking someone off the list is not the same as pretending they
+were never there. Deleting a message is the other case, and it is permanent —
+the row is gone, not hidden.
 
 The browser path still works and is unchanged: the `Kaijsa` link at the foot of
 `/chat` signs in with the same password and sets a 12-hour cookie.
