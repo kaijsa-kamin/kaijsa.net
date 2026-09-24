@@ -1,69 +1,135 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 /* A real fireplace, 2:46, recorded indoors — Sadiquecat on Freesound, CC0.
    The last four seconds are crossfaded over the first so the loop has no seam. */
 const TRACK = "/audio/fireplace-loop.mp3";
 const TARGET_VOLUME = 0.42;
+const STEP = 0.03;
+const TICK_MS = 45;
 
 /**
  * Ambient loop, carried over from vesperance.world.
  * Never autoplays — it waits for a deliberate press, then fades in.
+ *
+ * The audio element is the single source of truth about whether sound is
+ * coming out. `playing` only mirrors it, driven by the element's own play and
+ * pause events, and is never consulted to decide what a press should do.
+ *
+ * That distinction is the whole fix for a bug where the button stopped being
+ * able to stop anything. React state and the element could drift apart — a
+ * play() promise rejects with AbortError when a pause interrupts it, and the
+ * old code took that as "not playing" while the sound carried on — and once
+ * the state said stopped while the element was running, every further press
+ * took the start branch. Nothing short of a reload could silence it.
  */
 export default function SoundToggle() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fadeRef = useRef<number | null>(null);
+  const fadingOut = useRef(false);
+  const stopGuard = useRef<number | null>(null);
   const [playing, setPlaying] = useState(false);
+
+  const stopFade = useCallback(() => {
+    if (fadeRef.current) window.clearInterval(fadeRef.current);
+    fadeRef.current = null;
+  }, []);
+
+  const clearGuard = useCallback(() => {
+    if (stopGuard.current) window.clearTimeout(stopGuard.current);
+    stopGuard.current = null;
+  }, []);
 
   useEffect(() => {
     return () => {
-      if (fadeRef.current) window.clearInterval(fadeRef.current);
+      stopFade();
+      clearGuard();
       audioRef.current?.pause();
     };
-  }, []);
+  }, [stopFade, clearGuard]);
 
-  const fadeTo = (target: number, onDone?: () => void) => {
-    if (fadeRef.current) window.clearInterval(fadeRef.current);
-    fadeRef.current = window.setInterval(() => {
-      const a = audioRef.current;
-      if (!a) return;
-      const delta = target - a.volume;
-      if (Math.abs(delta) < 0.03) {
-        a.volume = target;
-        if (fadeRef.current) window.clearInterval(fadeRef.current);
-        fadeRef.current = null;
-        onDone?.();
-        return;
-      }
-      a.volume = Math.min(1, Math.max(0, a.volume + Math.sign(delta) * 0.03));
-    }, 45);
-  };
+  /** Steps the volume toward a target, then runs `onDone`. */
+  const fadeTo = useCallback(
+    (target: number, onDone?: () => void) => {
+      stopFade();
+      fadeRef.current = window.setInterval(() => {
+        const a = audioRef.current;
+        if (!a) return stopFade();
 
-  const toggle = () => {
+        // <= rather than <: with a step equal to the threshold, landing exactly
+        // on it would otherwise cost an extra tick and a float's worth of drift
+        if (Math.abs(target - a.volume) <= STEP) {
+          a.volume = target;
+          stopFade();
+          onDone?.();
+          return;
+        }
+        a.volume = Math.min(1, Math.max(0, a.volume + Math.sign(target - a.volume) * STEP));
+      }, TICK_MS);
+    },
+    [stopFade],
+  );
+
+  const ensureAudio = useCallback(() => {
     if (!audioRef.current) {
       const a = new Audio(TRACK);
       a.loop = true;
       a.preload = "auto";
       a.volume = 0;
+      // the element tells us what it is doing; we do not tell it what we think
+      a.addEventListener("play", () => setPlaying(true));
+      a.addEventListener("pause", () => setPlaying(false));
       audioRef.current = a;
     }
-    const a = audioRef.current;
+    return audioRef.current;
+  }, []);
 
-    if (playing) {
-      fadeTo(0, () => a.pause());
-      setPlaying(false);
+  const toggle = () => {
+    const a = ensureAudio();
+
+    // caught mid-fade-out: it is still audible, so turn it back up rather than
+    // starting it over from silence
+    if (!a.paused && fadingOut.current) {
+      clearGuard();
+      fadingOut.current = false;
+      setPlaying(true);
+      fadeTo(TARGET_VOLUME);
       return;
     }
 
+    if (!a.paused) {
+      fadingOut.current = true;
+      fadeTo(0, () => {
+        clearGuard();
+        a.pause();
+        fadingOut.current = false;
+      });
+
+      // The fade is a courtesy; silence is the promise. setInterval is
+      // throttled hard in a background tab, so a fade that should take 675ms
+      // can crawl for half a minute — and until it finishes, nothing pauses.
+      // A press that does not silence things is worse than an abrupt cut.
+      clearGuard();
+      stopGuard.current = window.setTimeout(() => {
+        stopFade();
+        a.pause();
+        a.volume = 0;
+        fadingOut.current = false;
+        stopGuard.current = null;
+      }, 900);
+      return;
+    }
+
+    clearGuard();
+    fadingOut.current = false;
     a.volume = 0;
     void a
       .play()
-      .then(() => {
-        setPlaying(true);
-        fadeTo(TARGET_VOLUME);
-      })
-      .catch(() => setPlaying(false));
+      .then(() => fadeTo(TARGET_VOLUME))
+      // a rejection here means no sound is coming out, so there is nothing to
+      // correct: the pause event has already put the button back
+      .catch(() => {});
   };
 
   return (
