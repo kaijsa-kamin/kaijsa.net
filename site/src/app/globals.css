@@ -30,9 +30,12 @@
   --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, "SF Mono", Menlo, monospace;
 
-  --frame-inset: clamp(8px, 1.1vw, 16px);
+  --frame-inset: clamp(10px, 1.1vw, 16px);
+  /* what the sticky bar actually occupies; the hero subtracts it so the fold
+     lands on the viewport edge. Grows when the bar stacks on a phone. */
+  --nav-h: 64px;
   --measure: 66ch;
-  --gutter: clamp(1.25rem, 4vw, 3.5rem);
+  --gutter: clamp(1.75rem, 4vw, 3.5rem);
   --shell: 1180px;
 
   color-scheme: dark;
@@ -265,7 +268,9 @@ h4 {
   font-size: clamp(2.6rem, 7vw, 4.6rem);
 }
 
-.page-head p {
+/* the lede that follows the heading — not the eyebrow above it, which this
+   outranks (0,1,1 beats .eyebrow's 0,1,0) and would push the header down */
+.page-head p:not(.eyebrow) {
   margin: 1.4rem 0 0;
   color: var(--text-dim);
   max-width: var(--measure);
@@ -382,13 +387,34 @@ h4 {
   .nav__links a { font-size: 0.6rem; letter-spacing: 0.12em; }
 }
 
-/* below this the wordmark gets its own line and the links sit under it */
+/* On a phone the bar stacks and centres: mark over links. Left-aligning six
+   short links against the frame read as crowded into the corner. */
 @media (max-width: 640px) {
   .nav__inner {
-    justify-content: flex-start;
-    padding-bottom: 0.55rem;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.6rem;
+    padding-bottom: 0.7rem;
   }
-  .nav__links { width: 100%; }
+  .nav__mark { justify-content: center; }
+  .nav__links {
+    width: 100%;
+    /* six links do not fit one phone row, and five-plus-one leaves Chat
+       stranded. Narrowing the row forces a balanced three-and-three. */
+    max-width: 14rem;
+    margin-inline: auto;
+    justify-content: center;
+    gap: 0.5rem 0.9rem;
+  }
+
+  /* the stacked bar is taller than the desktop one, and the hero subtracts
+     this to sit exactly one screen tall */
+  :root { --nav-h: 108px; }
+
+  /* the standing page padding is sized for the slim desktop bar; under the
+     stacked one it leaves the heading stranded halfway down the screen */
+  .page { padding-top: clamp(2.2rem, 5vh, 3.2rem); }
+  .page-head { margin-bottom: clamp(1.8rem, 4vh, 2.6rem); }
 }
 
 /* ==========================================================================
@@ -396,7 +422,7 @@ h4 {
    ========================================================================== */
 
 .hero {
-  min-height: calc(100dvh - 64px);
+  min-height: calc(100dvh - var(--nav-h));
   display: grid;
   place-items: center;
   position: relative;
