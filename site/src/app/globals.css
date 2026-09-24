@@ -916,7 +916,7 @@ h4 {
 
 .book {
   display: grid;
-  grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 23rem) minmax(0, 1fr);
   gap: clamp(2rem, 5vw, 4rem);
   align-items: start;
 }
@@ -924,7 +924,8 @@ h4 {
 .book__cover {
   position: sticky;
   top: 96px;
-  aspect-ratio: 2 / 3;
+  /* a little taller than the 2/3 it was */
+  aspect-ratio: 0.63;
   border: 1px solid var(--rule);
   background:
     radial-gradient(70% 50% at 50% 24%, rgba(249, 174, 51, 0.09), transparent 70%),
@@ -956,7 +957,7 @@ h4 {
 .book__plate strong {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: clamp(1.14rem, 2.3vw, 1.52rem);
   line-height: 1.12;
   color: var(--cream);
 }
@@ -964,13 +965,13 @@ h4 {
 .book__plate em {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 0.98rem;
+  font-size: 0.8rem;
   color: var(--text-dim);
 }
 
 .book__by {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.5rem;
   letter-spacing: 0.34em;
   text-transform: uppercase;
   color: var(--flame);
@@ -1049,7 +1050,7 @@ h4 {
   }
   .book__cover {
     position: static;
-    max-width: 18rem;
+    max-width: 21rem;
   }
 }
 
