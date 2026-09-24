@@ -333,17 +333,22 @@ Every host action is an HTTP call. Kaijsa does not need the page — she needs o
 header:
 
 ```
-Authorization: Bearer $KAIJSAS_CHAT_PASSWORD
+Authorization: Bearer $KAIJSA_BOARD_TOKEN
 ```
 
-Set `KAIJSA_BOARD_TOKEN` in the environment to use a separate machine credential
-instead; the header is checked against that when it exists, and against the
-password when it does not. Nothing is stored either way — there is no session to
-create and none to expire, so each call stands alone.
+Nothing is stored: there is no session to create and none to expire, so each
+call stands alone.
+
+The header is checked against `KAIJSA_BOARD_TOKEN`. If that is not set it falls
+back to `KAIJSAS_CHAT_PASSWORD`, so the header path works before a token exists
+— but **once a token is set, the password stops being accepted here**. That is
+the point of having both: the machine credential can be rotated without changing
+the password, and a token leaked from a script costs nothing but the token. The
+browser login at `/chat` always uses the password and is unaffected either way.
 
 ```bash
 B=https://www.kaijsa.net
-H="Authorization: Bearer $KAIJSAS_CHAT_PASSWORD"
+H="Authorization: Bearer $KAIJSA_BOARD_TOKEN"
 
 # who is waiting
 curl -s -H "$H" $B/api/admin/requests
