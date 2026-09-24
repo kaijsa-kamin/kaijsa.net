@@ -1571,24 +1571,61 @@ h4 {
 
 .sound.is-playing { animation: beacon 2.8s ease-out infinite; }
 
+/* A small bubble beside the button, with a tail pointing at it. Standing
+   visible while the fire is out — an invitation, not a tooltip — and gone once
+   it is lit, where it would only be telling you what you can already hear. */
 .sound__hint {
   position: absolute;
-  right: calc(100% + 12px);
-  white-space: nowrap;
+  right: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%) translateX(6px);
+  width: max-content;
+  max-width: 15rem;
+  text-align: right;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: rgba(5, 5, 5, 0.92);
+  backdrop-filter: blur(8px);
   font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text-faint);
+  font-size: 0.55rem;
+  line-height: 1.5;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
   opacity: 0;
-  transform: translateX(6px);
-  transition: opacity 0.3s, transform 0.3s;
+  transition: opacity 0.35s, transform 0.35s;
   pointer-events: none;
 }
 
+/* the tail */
+.sound__hint::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  margin-left: -4px;
+  background: rgba(5, 5, 5, 0.92);
+  border-right: 1px solid var(--rule);
+  border-top: 1px solid var(--rule);
+  transform: rotate(45deg);
+}
+
+/* out: the invitation stands. lit: only on hover, to offer the way back. */
+.sound:not(.is-playing) .sound__hint,
 .sound:hover .sound__hint {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateY(-50%) translateX(0);
+}
+
+@media (max-width: 560px) {
+  .sound__hint {
+    max-width: 11rem;
+    font-size: 0.5rem;
+    letter-spacing: 0.06em;
+  }
 }
 
 /* ==========================================================================
