@@ -18,7 +18,7 @@ const ASCII_LINE_HEIGHT = 1.05;
 /** the character grid throws away a lot of light; give it back */
 const ASCII_FLOOR = 0.32;
 /** how many portrait names may share one line */
-const PER_ROW = 6;
+const PER_ROW = 5;
 
 /** Offered under the portrait. Variants left out here are still built by
  *  buildPortrait and still appear in the archive — they are just not on the
@@ -344,11 +344,15 @@ export default function KaijsaFace() {
       </div>
 
       <div className="face__controls">
-        <div className="face__switch" role="group" aria-label="Portrait">
+        <div className="face__switch face__switch--variants" role="group" aria-label="Portrait">
           {CHOICES.map((v, i) => (
             <Fragment key={v.id}>
               <span className="face__opt">
-                {i % PER_ROW !== 0 && <span aria-hidden="true">·</span>}
+                {i % PER_ROW !== 0 && (
+                  <span className="face__dot" aria-hidden="true">
+                    ·
+                  </span>
+                )}
                 <button
                   type="button"
                   className={variant === v.id ? "is-active" : ""}

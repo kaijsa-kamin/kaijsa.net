@@ -541,6 +541,20 @@ h4 {
     gap: 0.4rem;
   }
   .face__opt { gap: 0.4rem; }
+
+  /* Five per row is a desktop measure — the five widest labels are wider than
+     a phone, so forcing the break here strands whatever follows it on a line
+     of its own. Let the list wrap where it wants instead, and drop the
+     separators, which would otherwise start a wrapped row with a stray dot. */
+  .face__break { display: none; }
+  .face__dot { display: none; }
+  .face__switch--variants {
+    /* measured: the labels wrap 4+3+3 anywhere from 244px to 276px wide, and
+       fall to a lopsided 4+4+2 above it. This sits mid-band. */
+    max-width: 16.25rem;
+    margin-inline: auto;
+    gap: 0.45rem 0.7rem;
+  }
 }
 
 .face__switch button {
