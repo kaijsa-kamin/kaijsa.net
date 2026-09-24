@@ -62,7 +62,7 @@ export default function Board() {
   const [email, setEmail] = useState("");
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
-  const [refused, setRefused] = useState(false);
+  const [showJoin, setShowJoin] = useState(false);
 
   const [host, setHost] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
@@ -124,7 +124,7 @@ export default function Board() {
 
     setSending(true);
     setNotice(null);
-    setRefused(false);
+    setShowJoin(false);
 
     try {
       const res = await fetch("/api/board/messages", {
@@ -135,7 +135,7 @@ export default function Board() {
       const data = await res.json();
 
       if (res.status === 403) {
-        setRefused(true);
+        setShowJoin(true);
         setNotice(data.error);
         return;
       }
@@ -173,7 +173,13 @@ export default function Board() {
 
         <div className="chat__log" ref={logRef} onScroll={onScroll}>
           {messages === null && !offline && <p className="board__empty">Reading the board…</p>}
-          {offline && <p className="board__empty">{offline}</p>}
+          {offline && (
+            <p className="board__empty">
+              {offline}
+              <br />
+              Posting and joining are both off until it is.
+            </p>
+          )}
           {messages?.length === 0 && (
             <p className="board__empty">Nothing on the board yet. Be the first.</p>
           )}
@@ -208,6 +214,7 @@ export default function Board() {
                 placeholder="Name"
                 autoComplete="name"
                 maxLength={60}
+                disabled={disabled}
               />
               <label className="sr-only" htmlFor="board-email">
                 Your email
@@ -220,6 +227,7 @@ export default function Board() {
                 placeholder="Email"
                 autoComplete="email"
                 maxLength={160}
+                disabled={disabled}
               />
             </div>
           )}
@@ -261,10 +269,21 @@ export default function Board() {
           )}
 
           {notice && <p className="board__notice">{notice}</p>}
+
+          {!host && !showJoin && (
+            <p className="board__as">
+              Not on the guest list?{" "}
+              <button type="button" className="linklike" onClick={() => setShowJoin(true)}>
+                Ask to join
+              </button>
+            </p>
+          )}
         </form>
       </div>
 
-      {refused && <JoinForm name={name || identity?.name || ""} email={email || identity?.email || ""} />}
+      {showJoin && !host && (
+        <JoinForm name={name || identity?.name || ""} email={email || identity?.email || ""} />
+      )}
 
       <HostPanel host={host} onHostChange={setHost} />
     </>
