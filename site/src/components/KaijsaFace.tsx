@@ -20,6 +20,12 @@ const ASCII_FLOOR = 0.32;
 /** how many portrait names may share one line */
 const PER_ROW = 6;
 
+/** Offered under the portrait. Variants left out here are still built by
+ *  buildPortrait and still appear in the archive — they are just not on the
+ *  page. */
+const HIDDEN: Variant[] = ["oracle"];
+const CHOICES = VARIANTS.filter((v) => !HIDDEN.includes(v.id));
+
 /**
  * Character cells are not square and their aspect depends on the font that
  * actually loaded, so measure it rather than assume it.
@@ -339,7 +345,7 @@ export default function KaijsaFace() {
 
       <div className="face__controls">
         <div className="face__switch" role="group" aria-label="Portrait">
-          {VARIANTS.map((v, i) => (
+          {CHOICES.map((v, i) => (
             <Fragment key={v.id}>
               <span className="face__opt">
                 {i % PER_ROW !== 0 && <span aria-hidden="true">·</span>}
@@ -354,7 +360,7 @@ export default function KaijsaFace() {
                 </button>
               </span>
               {/* a zero-height full-width item forces the flex line to break */}
-              {(i + 1) % PER_ROW === 0 && i < VARIANTS.length - 1 && (
+              {(i + 1) % PER_ROW === 0 && i < CHOICES.length - 1 && (
                 <span className="face__break" aria-hidden="true" />
               )}
             </Fragment>
