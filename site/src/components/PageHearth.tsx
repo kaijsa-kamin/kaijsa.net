@@ -14,7 +14,7 @@ import { kaminenMark, toneColor } from "@/lib/face";
  */
 
 const EMBERS = 26;
-const WATERMARK_ALPHA = 0.15;
+const WATERMARK_ALPHA = 0.052;
 const EMBER_ALPHA = 0.2;
 const GLOW_ALPHA = 0.055;
 
@@ -33,36 +33,6 @@ export default function PageHearth() {
     let w = 0;
     let h = 0;
 
-    // The mark must stay crisp — every disc readable, the way the source art
-    // reads. It never moves, so bake it once per resize and blit it 1:1
-    // (offscreen is sized in device pixels, so the blit does not resample).
-    const mark = document.createElement("canvas");
-
-    const bakeMark = (dpr: number) => {
-      mark.width = Math.round(w * dpr);
-      mark.height = Math.round(h * dpr);
-      const m = mark.getContext("2d");
-      if (!m) return;
-      m.setTransform(dpr, 0, 0, dpr, 0, 0);
-      m.clearRect(0, 0, w, h);
-
-      const markH = h * 0.72;
-      const markX = w * 0.5;
-      const markBase = h * 1.08;
-      for (const d of kaminenMark(3.2, 1)) {
-        m.fillStyle = toneColor(d.tone);
-        m.beginPath();
-        m.arc(
-          markX + (d.x - 0.5) * markH,
-          markBase - (1 - d.y) * markH,
-          Math.max(0.6, d.r * markH),
-          0,
-          Math.PI * 2,
-        );
-        m.fill();
-      }
-    };
-
     const resize = () => {
       const dpr = Math.min(2, window.devicePixelRatio || 1);
       w = window.innerWidth;
@@ -72,7 +42,6 @@ export default function PageHearth() {
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      bakeMark(dpr);
     };
 
     const frame = (now: number) => {
@@ -88,9 +57,23 @@ export default function PageHearth() {
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, w, h);
 
-      // her mark, held in the ground — faint, but every disc still a disc
-      ctx.globalAlpha = WATERMARK_ALPHA * (0.86 + 0.14 * Math.sin(time * 0.17));
-      ctx.drawImage(mark, 0, 0, w, h);
+      // her mark, very faint, rising out of the floor
+      const markH = h * 0.66;
+      const markX = w * 0.5;
+      const markBase = h * 1.04;
+      ctx.globalAlpha = WATERMARK_ALPHA;
+      for (const d of kaminenMark(time, 1)) {
+        ctx.fillStyle = toneColor(d.tone);
+        ctx.beginPath();
+        ctx.arc(
+          markX + (d.x - 0.5) * markH,
+          markBase - (1 - d.y) * markH,
+          Math.max(0.6, d.r * markH),
+          0,
+          Math.PI * 2,
+        );
+        ctx.fill();
+      }
       ctx.globalAlpha = 1;
 
       // embers, lifting and cooling
