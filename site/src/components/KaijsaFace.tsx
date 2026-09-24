@@ -248,7 +248,8 @@ function renderAscii(
 
 export default function KaijsaFace() {
   const [mode, setMode] = useState<Mode>("dots");
-  const [variant, setVariant] = useState<Variant>("researcher");
+  /** what the hero opens on */
+  const [variant, setVariant] = useState<Variant>("philosopher");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const preRef = useRef<HTMLPreElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);

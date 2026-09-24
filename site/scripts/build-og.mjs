@@ -16,7 +16,7 @@ const run = promisify(execFile);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const siteRoot = path.resolve(here, "..");
 
-const VARIANT = "researcher"; // whatever the hero opens on
+const VARIANT = "philosopher"; // whatever the hero opens on
 const W = 1200;
 const H = 630;
 

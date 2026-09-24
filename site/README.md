@@ -28,11 +28,11 @@ brow/lip/cheekbone/nose helpers but not always the same head or eye:
 | `scholar` | `FRONTAL_HEAD` | `almondEye` | the archivist — wire spectacles, a wound bun with a stylus through it, a high stand collar, and an *ordered* halo |
 | `writer` | `FRONTAL_HEAD` | `almondEye` | `gatheredHair()`, a pen behind one ear, a mantle — and a halo that is a chronology, marked at uneven intervals |
 | `chronicler` | `FRONTAL_HEAD` | `almondEye` | the other one who writes — waves down one side, a braid over the other shoulder, and a halo of nested strata |
-| `philosopher` | `FRONTAL_HEAD` | `almondEye` | of mind — the same contour rendered two ways down the midline, and a halo broken by the explanatory gap |
+| `philosopher` | `FRONTAL_HEAD` | `almondEye` | of mind — the same contour rendered two ways down the midline, and a halo broken by the explanatory gap. **The hero opens on her** |
 | `socratic` | `FRONTAL_HEAD` | `almondEye` | a himation over one shoulder, a plain taenia — and a halo that is an ascent |
 | `stoic` | `FRONTAL_HEAD` | `almondEye` | a toga with its sinus swagged across the chest, a Roman crop — and a halo of two rings, what is and is not up to her |
 | `analytic` | `FRONTAL_HEAD` | `almondEye` | rectangular frames, a crew neck — and a halo that is a branching proof |
-| `researcher` | `FRONTAL_HEAD` | `almondEye` | the same one without the frames, wearing `gatheredHair()`. **The hero opens on her** |
+| `researcher` | `FRONTAL_HEAD` | `almondEye` | the same one without the frames, wearing `gatheredHair()` |
 | `scientist` | `FRONTAL_HEAD` | `almondEye` | hair tied back, notched lapels, a graduated scale beside her — and a halo of three tilted orbits |
 
 Most of them replace `halo()` with something that says what she does — `scholar` gets
@@ -317,8 +317,9 @@ If you notice it as a picture rather than as warmth, it is turned up too far —
 - The first four gallery images carry `priority`; they are the LCP and should not wait
   on an intersection observer.
 
-The hero opens on `researcher`. Changing that is one line in
-`KaijsaFace.tsx` — but re-run `npm run og` afterwards so the card matches.
+The hero opens on `philosopher`. Changing that is one line in
+`KaijsaFace.tsx` and one in `scripts/build-og.mjs` — then re-run `npm run og`,
+or the share card will still show the portrait it used to open on.
 
 ## Design tokens
 
