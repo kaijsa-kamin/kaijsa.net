@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getNotes } from "@/lib/marginalia";
 import { getPosts } from "@/lib/posts";
 
-const BASE = "https://kaijsa.world";
+const BASE = "https://www.kaijsa.net";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const pages = ["", "/blog", "/marginalia", "/gallery", "/book", "/language", "/about", "/chat"].map((p) => ({

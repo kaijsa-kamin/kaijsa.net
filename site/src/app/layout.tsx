@@ -24,7 +24,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kaijsa.world"),
+  metadataBase: new URL("https://www.kaijsa.net"),
   title: {
     default: "Kaijsa",
     template: "%s — Kaijsa",
