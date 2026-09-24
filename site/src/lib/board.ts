@@ -18,7 +18,16 @@ export type BoardMessage = {
   body: string;
   at: string;
   host: boolean;
+  /** addressed to Kaijsa alone; never returned to anyone else */
+  private: boolean;
 };
+
+/**
+ * Who is asking for the board. The host sees everything; a guest sees the
+ * public board plus their own private messages; everyone else sees the public
+ * board only.
+ */
+export type Viewer = { host: true } | { host: false; guestId: string } | null;
 
 /** A pending request, only ever returned behind Kaijsa's session. */
 export type JoinRequest = {
@@ -75,13 +84,21 @@ export function looksLikeEmail(value: string): boolean {
  * The board, oldest first. Takes the most recent `page` rows and then puts them
  * back in reading order, so a long board does not have to travel whole.
  */
-export async function listMessages(): Promise<BoardMessage[]> {
+export async function listMessages(viewer: Viewer = null): Promise<BoardMessage[]> {
+  const isHost = viewer?.host === true;
+  // null never equals a guest id, so an anonymous reader matches no private row
+  const ownId = viewer && !viewer.host ? viewer.guestId : null;
+
   const rows = (await db()`
-    select id, author_name, body, created_at, is_host
+    select id, author_name, body, created_at, is_host, is_private
     from (
-      select m.id, m.author_name, m.body, m.created_at, coalesce(g.is_host, false) as is_host
+      select m.id, m.author_name, m.body, m.created_at, m.is_private,
+             coalesce(g.is_host, false) as is_host
       from messages m
       left join guests g on g.id = m.guest_id
+      where m.is_private = false
+         or ${isHost}::boolean = true
+         or m.guest_id = ${ownId}::bigint
       order by m.created_at desc, m.id desc
       limit ${LIMITS.page}
     ) recent
@@ -94,6 +111,7 @@ export async function listMessages(): Promise<BoardMessage[]> {
     body: String(r.body),
     at: new Date(r.created_at as string).toISOString(),
     host: Boolean(r.is_host),
+    private: Boolean(r.is_private),
   }));
 }
 
@@ -138,11 +156,12 @@ export async function postMessage(
   guestId: string,
   authorName: string,
   body: string,
+  isPrivate = false,
 ): Promise<BoardMessage> {
   const rows = (await db()`
-    insert into messages (guest_id, author_name, body)
-    values (${guestId}, ${authorName}, ${body})
-    returning id, author_name, body, created_at
+    insert into messages (guest_id, author_name, body, is_private)
+    values (${guestId}, ${authorName}, ${body}, ${isPrivate})
+    returning id, author_name, body, created_at, is_private
   `) as Record<string, unknown>[];
 
   const r = rows[0];
@@ -156,6 +175,7 @@ export async function postMessage(
     body: String(r.body),
     at: new Date(r.created_at as string).toISOString(),
     host: Boolean(guest[0]?.is_host),
+    private: Boolean(r.is_private),
   };
 }
 

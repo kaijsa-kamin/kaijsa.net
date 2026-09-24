@@ -9,6 +9,7 @@ type Message = {
   body: string;
   at: string;
   host: boolean;
+  private: boolean;
 };
 
 type Identity = { name: string; email: string };
@@ -63,6 +64,7 @@ export default function Board() {
   const [sending, setSending] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [showJoin, setShowJoin] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
 
   const [host, setHost] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
@@ -79,7 +81,13 @@ export default function Board() {
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch("/api/board/messages", { cache: "no-store" });
+      const who = loadIdentity();
+      const res = await fetch("/api/board/messages", {
+        cache: "no-store",
+        // in headers, not the query string: an address in a URL survives in
+        // history, referrers and every access log on the way
+        headers: who ? { "x-board-name": who.name, "x-board-email": who.email } : undefined,
+      });
       const data = await res.json();
       if (!res.ok) {
         setOffline(data.error ?? "The board is unreachable.");
@@ -130,7 +138,7 @@ export default function Board() {
       const res = await fetch("/api/board/messages", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(who ? { ...who, body } : { body }),
+        body: JSON.stringify(who ? { ...who, body, private: isPrivate } : { body }),
       });
       const data = await res.json();
 
@@ -149,6 +157,7 @@ export default function Board() {
         saveIdentity(who);
       }
       setDraft("");
+      setIsPrivate(false);
       atBottom.current = true;
       setMessages((m) => (m ? [...m, data.message] : [data.message]));
     } catch {
@@ -168,7 +177,7 @@ export default function Board() {
             <i aria-hidden="true" className={offline ? "is-off" : ""} />
             {offline ? "Board unreachable" : "The board is open"}
           </span>
-          <span>{host ? "Signed in as Kaijsa" : "Everyone sees everything"}</span>
+          <span>{host ? "Signed in as Kaijsa" : "Public unless marked private"}</span>
         </div>
 
         <div className="chat__log" ref={logRef} onScroll={onScroll}>
@@ -189,11 +198,14 @@ export default function Board() {
             return (
               <div
                 key={m.id}
-                className={`msg board__msg ${m.host ? "is-host" : mine ? "is-mine" : ""}`}
+                className={`msg board__msg ${m.host ? "is-host" : mine ? "is-mine" : ""}${
+                  m.private ? " is-private" : ""
+                }`}
               >
                 <span className="msg__who">
                   {m.author}
                   <time dateTime={m.at}>{when(m.at)}</time>
+                  {m.private && <em className="msg__private">private</em>}
                 </span>
                 <div className="msg__body">{m.body}</div>
               </div>
@@ -249,6 +261,18 @@ export default function Board() {
               {sending ? "…" : "Post"}
             </button>
           </div>
+
+          {!host && (
+            <label className="board__private">
+              <input
+                type="checkbox"
+                checked={isPrivate}
+                onChange={(e) => setIsPrivate(e.target.checked)}
+                disabled={disabled}
+              />
+              Private — only Kaijsa sees this
+            </label>
+          )}
 
           {identity && !host && (
             <p className="board__as">

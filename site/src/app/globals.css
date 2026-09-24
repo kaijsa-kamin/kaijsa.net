@@ -1801,3 +1801,44 @@ h4 {
   .board__who { grid-template-columns: 1fr; }
   .board__request { flex-direction: column; align-items: flex-start; }
 }
+
+/* a message addressed to Kaijsa alone: dimmer ground, dashed edge, and a word
+   saying so — it should not read like something everyone can see */
+.board__msg.is-private .msg__body {
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--rule-soft);
+}
+
+.msg__private {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: 0.54rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--flame);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 0.1rem 0.35rem;
+}
+
+.board__private {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: var(--text-faint);
+  cursor: pointer;
+  user-select: none;
+}
+
+.board__private input {
+  width: 13px;
+  height: 13px;
+  accent-color: var(--orange);
+  cursor: pointer;
+}
+
+.board__private:hover { color: var(--text-dim); }

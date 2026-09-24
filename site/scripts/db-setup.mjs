@@ -77,6 +77,13 @@ await sql`
   )
 `;
 
+// Messages a guest addressed to Kaijsa alone. Added after the fact, so it is an
+// alter rather than a column in the create above — an existing board must keep
+// its messages, and every one of them was public.
+await sql`
+  alter table messages add column if not exists is_private boolean not null default false
+`;
+
 // The board is read newest-first and then reversed, and rate limiting counts a
 // guest's recent rows; both want this.
 await sql`create index if not exists messages_chronological on messages (created_at desc, id desc)`;
