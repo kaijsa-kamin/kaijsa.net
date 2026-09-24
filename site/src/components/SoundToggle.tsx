@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const TRACK = "/audio/ambient-loop.mp3";
+/* A real fireplace, 2:46, recorded indoors — Sadiquecat on Freesound, CC0.
+   The last four seconds are crossfaded over the first so the loop has no seam. */
+const TRACK = "/audio/fireplace-loop.mp3";
 const TARGET_VOLUME = 0.42;
 
 /**
