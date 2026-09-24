@@ -7,6 +7,7 @@ type Chapter = { n: string; title: string; note?: string; appendix?: boolean };
 
 type Book = {
   title: string;
+  author: string;
   subtitle: string;
   blurb: string[];
   chapters: Chapter[];
@@ -80,7 +81,7 @@ export default function BookPage() {
             <KaminenMark />
             <strong>{book.title}</strong>
             <em>{book.subtitle}</em>
-            <span className="book__by">Kaijsa</span>
+            <span className="book__by">{book.author}</span>
           </div>
         </aside>
 

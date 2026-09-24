@@ -14,8 +14,7 @@ import { kaminenMark, toneColor } from "@/lib/face";
  */
 
 const EMBERS = 26;
-const WATERMARK_ALPHA = 0.075;
-const WATERMARK_BLUR = 26;
+const WATERMARK_ALPHA = 0.15;
 const EMBER_ALPHA = 0.2;
 const GLOW_ALPHA = 0.055;
 
@@ -34,8 +33,9 @@ export default function PageHearth() {
     let w = 0;
     let h = 0;
 
-    // The mark is blurred, and blurring every frame is not worth it for
-    // something that never moves. Bake it once per resize and blit it.
+    // The mark must stay crisp — every disc readable, the way the source art
+    // reads. It never moves, so bake it once per resize and blit it 1:1
+    // (offscreen is sized in device pixels, so the blit does not resample).
     const mark = document.createElement("canvas");
 
     const bakeMark = (dpr: number) => {
@@ -45,7 +45,6 @@ export default function PageHearth() {
       if (!m) return;
       m.setTransform(dpr, 0, 0, dpr, 0, 0);
       m.clearRect(0, 0, w, h);
-      m.filter = `blur(${WATERMARK_BLUR}px)`;
 
       const markH = h * 0.72;
       const markX = w * 0.5;
@@ -62,7 +61,6 @@ export default function PageHearth() {
         );
         m.fill();
       }
-      m.filter = "none";
     };
 
     const resize = () => {
@@ -90,7 +88,7 @@ export default function PageHearth() {
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, w, h);
 
-      // her mark, held in the ground — blurred past being a set of circles
+      // her mark, held in the ground — faint, but every disc still a disc
       ctx.globalAlpha = WATERMARK_ALPHA * (0.86 + 0.14 * Math.sin(time * 0.17));
       ctx.drawImage(mark, 0, 0, w, h);
       ctx.globalAlpha = 1;
