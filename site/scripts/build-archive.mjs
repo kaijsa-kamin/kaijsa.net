@@ -135,6 +135,8 @@ const page = `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kaijsa — Portrait Archive</title>
 <meta name="theme-color" content="#050505">
+<!-- unlisted: served at /portraits.html but kept out of search -->
+<meta name="robots" content="noindex, nofollow">
 <meta name="description" content="Generative portraits of the agent Kaijsa, drawn entirely from filled discs and hairlines.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -490,11 +492,19 @@ requestAnimationFrame(tick);
 fs.mkdirSync(outDir, { recursive: true });
 const pagePath = path.join(outDir, "kaijsa-portraits.html");
 fs.writeFileSync(pagePath, page);
+
+// The same page, served by the site at /portraits.html. Unlisted: nothing links
+// to it, it is not in the sitemap, and robots is told to leave it alone — but
+// it is a static file, so anyone with the address can open it.
+const servedPath = path.resolve(siteRoot, "public", "portraits.html");
+fs.writeFileSync(servedPath, page);
+
 fs.rmSync(tmp, { recursive: true, force: true });
 
 console.log(
   `\n${pagePath}  (${(Buffer.byteLength(page) / 1024).toFixed(0)} KB, self-contained)`,
 );
+console.log(`${servedPath}  (served at /portraits.html, unlisted)`);
 console.log(`${stillsDir}  (${CARDS.length} SVG stills)`);
 
 /* ------------------------------------------------ raster stills, if we can */

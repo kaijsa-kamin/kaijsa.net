@@ -371,8 +371,6 @@ export default function KaijsaFace() {
           ))}
         </div>
 
-        <span className="face__sep" aria-hidden="true" />
-
         <div className="face__switch" role="group" aria-label="Rendering mode">
           <button
             type="button"

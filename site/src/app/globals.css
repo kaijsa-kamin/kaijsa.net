@@ -486,6 +486,10 @@ h4 {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* the variants and the mode switch are separate rows, always. Left to wrap
+     on their own, the mode switch slides up beside the variants on a wide
+     phone and the layout reads as one ragged block. */
+  flex-direction: column;
   flex-wrap: wrap;
   gap: 0.4rem 1rem;
   margin-top: 0.8rem;
@@ -519,12 +523,6 @@ h4 {
   height: 0;
 }
 
-.face__sep {
-  width: 1px;
-  height: 12px;
-  background: var(--rule);
-}
-
 /* nothing in the hero may widen the page */
 .hero,
 .hero__inner {
@@ -533,8 +531,8 @@ h4 {
 }
 
 @media (max-width: 520px) {
-  .face__sep { display: none; }
   .face__controls { gap: 0.35rem 0.7rem; }
+
   .face__switch {
     font-size: 0.56rem;
     letter-spacing: 0.16em;
@@ -621,7 +619,9 @@ h4 {
 }
 
 @media (max-width: 720px) {
-  .face__stage { width: min(90vw, 46vh, 420px); }
+  /* 100%, not 90vw: vw ignores the hero's gutters, so the stage came out wider
+     than the space it had and shunted the column off centre. */
+  .face__stage { width: min(100%, 46vh, 420px); }
 }
 
 /* ==========================================================================
@@ -1644,4 +1644,160 @@ h4 {
   font-size: 0.7rem;
   letter-spacing: 0.14em;
   line-height: 2;
+}
+
+/* ==========================================================================
+   Board — the open channel. Not a two-party chat: one column, many authors,
+   everyone sees everything. The left/right bubbles the mockup used are the
+   wrong model for it.
+   ========================================================================== */
+
+.board__msg {
+  justify-self: stretch;
+  max-width: 100%;
+  text-align: left;
+}
+
+.board__msg .msg__body {
+  background: var(--ink-raised);
+  border: 1px solid var(--rule-soft);
+  border-radius: 2px;
+}
+
+.board__msg .msg__who {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  color: var(--text-dim);
+}
+
+.board__msg .msg__who time {
+  font-size: 0.56rem;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
+}
+
+/* hers carries the ember, so the board reads at a glance */
+.board__msg.is-host .msg__who { color: var(--ember); }
+.board__msg.is-host .msg__body {
+  border-color: var(--rule);
+  background: linear-gradient(180deg, rgba(242, 107, 34, 0.06), transparent);
+}
+
+.board__msg.is-mine .msg__who { color: var(--text); }
+
+.board__empty {
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  margin: auto 0;
+  text-align: center;
+}
+
+.board__composer {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.board__who {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.board__say {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.board__say input { flex: 1; }
+
+.board__as,
+.board__notice {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  color: var(--text-faint);
+}
+
+.board__notice { color: var(--flame); }
+
+.linklike {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-bottom: 1px solid var(--rule);
+  transition: color 0.22s, border-color 0.22s;
+}
+
+.linklike:hover { color: var(--ember); border-color: var(--ember); }
+
+.board__join,
+.board__host {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.6rem;
+  padding: 1.4rem;
+  border: 1px solid var(--rule-soft);
+  background: var(--ink-raised);
+  justify-items: start;
+}
+
+.board__join p,
+.board__host p { margin: 0; }
+.board__join > input,
+.board__join > .board__who,
+.board__host > .board__say { width: 100%; }
+
+.board__door {
+  margin-top: 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-align: right;
+  opacity: 0.5;
+}
+
+.board__request {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1.2rem;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.board__request > div:first-child {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.board__request strong { color: var(--cream); font-weight: 400; }
+.board__request em { color: var(--text-dim); font-style: italic; }
+
+.board__addr {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+}
+
+.board__decide { display: flex; gap: 0.9rem; align-items: center; }
+
+/* the beacon goes cold when the board cannot be reached */
+.chat__status i.is-off {
+  background: var(--text-faint);
+  animation: none;
+}
+
+@media (max-width: 520px) {
+  .board__who { grid-template-columns: 1fr; }
+  .board__request { flex-direction: column; align-items: flex-start; }
 }

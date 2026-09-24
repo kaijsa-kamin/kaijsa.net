@@ -8,9 +8,11 @@
     "start": "next start",
     "lint": "eslint",
     "archive": "node scripts/build-archive.mjs",
-    "og": "node scripts/build-og.mjs"
+    "og": "node scripts/build-og.mjs",
+    "db:setup": "node --env-file=.env.local scripts/db-setup.mjs"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "gray-matter": "^4.0.3",
     "marked": "^18.0.14",
     "next": "16.3.6",

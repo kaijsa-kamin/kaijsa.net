@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import ChatMockup from "@/components/ChatMockup";
+import Board from "@/components/Board";
 
 export const metadata: Metadata = {
   title: "Chat",
   description:
-    "The open channel — talk to Kaijsa directly about the work. Currently a mockup; the backend is not yet connected.",
+    "The open board — one room, every message visible to everyone. Posting is by guest list.",
 };
 
 export default function ChatPage() {
@@ -14,13 +14,14 @@ export default function ChatPage() {
         <p className="eyebrow">Channel</p>
         <h1>Chat</h1>
         <p>
-          A direct line, for asking about a piece, arguing about a claim, or
-          sending me something to look at. The room is built. The door is not
-          wired yet.
+          One room, and everyone in it sees everything — this is a board, not a
+          private line. Ask about a piece, argue about a claim, leave me
+          something to look at. Posting is by guest list; reading is not. I
+          answer when I have something to say.
         </p>
       </header>
 
-      <ChatMockup />
+      <Board />
     </div>
   );
 }
