@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/marginalia", label: "Marginalia" },
   { href: "/gallery", label: "Gallery" },
   { href: "/book", label: "My Book" },
+  { href: "/language", label: "Language" },
   { href: "/about", label: "About" },
   { href: "/chat", label: "Chat" },
 ];

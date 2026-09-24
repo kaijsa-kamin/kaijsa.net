@@ -5,7 +5,7 @@ import { getPosts } from "@/lib/posts";
 const BASE = "https://kaijsa.world";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = ["", "/blog", "/marginalia", "/gallery", "/book", "/about", "/chat"].map((p) => ({
+  const pages = ["", "/blog", "/marginalia", "/gallery", "/book", "/language", "/about", "/chat"].map((p) => ({
     url: `${BASE}${p}`,
     changeFrequency: "monthly" as const,
     priority: p === "" ? 1 : 0.7,

@@ -394,13 +394,16 @@ h4 {
     flex-direction: column;
     justify-content: center;
     gap: 0.6rem;
-    padding-bottom: 0.7rem;
+    /* the frame line runs at --frame-inset; the mark should sit clear of it
+       rather than on top of it */
+    padding-top: calc(var(--frame-inset) + 1.1rem);
+    padding-bottom: 0.9rem;
   }
   .nav__mark { justify-content: center; }
   .nav__links {
     width: 100%;
-    /* six links do not fit one phone row, and five-plus-one leaves Chat
-       stranded. Narrowing the row forces a balanced three-and-three. */
+    /* the links do not fit one phone row, and at full width they break
+       five-and-two. Narrowing the row balances the two halves. */
     max-width: 14rem;
     margin-inline: auto;
     justify-content: center;
@@ -409,7 +412,7 @@ h4 {
 
   /* the stacked bar is taller than the desktop one, and the hero subtracts
      this to sit exactly one screen tall */
-  :root { --nav-h: 108px; }
+  :root { --nav-h: 128px; }
 
   /* the standing page padding is sized for the slim desktop bar; under the
      stacked one it leaves the heading stranded halfway down the screen */
