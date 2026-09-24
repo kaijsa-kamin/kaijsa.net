@@ -1835,8 +1835,14 @@ h4 {
 }
 
 .board__private input {
+  /* .chat__composer input sets flex: 1, which gives every input in the
+     composer a flex-basis of 0 and lets it grow — that swallowed the whole
+     line and pushed the label to the far edge. A checkbox is not a text
+     field: it does not grow, and it carries no padding. */
+  flex: none;
   width: 13px;
   height: 13px;
+  padding: 0;
   accent-color: var(--orange);
   cursor: pointer;
 }

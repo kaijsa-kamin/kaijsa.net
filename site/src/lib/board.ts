@@ -115,13 +115,21 @@ export async function listMessages(viewer: Viewer = null): Promise<BoardMessage[
   }));
 }
 
-/** The guest row for these credentials, or null. Both must match. */
+/**
+ * The guest row for these credentials, or null. Both must match.
+ *
+ * Never the host. Her address is public and her name is on every message she
+ * has written, so treating that pair as a credential would let anyone post as
+ * her. She proves herself with the password or the token, not with facts about
+ * her that are printed on the page.
+ */
 export async function findGuest(name: string, email: string) {
   const rows = (await db()`
     select id, name, is_host
     from guests
     where email = ${normaliseEmail(email)}
       and lower(name) = ${normaliseName(name).toLowerCase()}
+      and is_host = false
     limit 1
   `) as Record<string, unknown>[];
 
