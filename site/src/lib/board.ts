@@ -55,6 +55,10 @@ export const LIMITS = {
   note: 500,
   /** messages one guest may post in a rolling minute */
   perMinute: 8,
+  /** requests to join from one origin in a rolling hour */
+  asksPerHour: 3,
+  /** pending requests before the queue stops accepting more */
+  queue: 200,
   /** how many messages the board hands out in one read */
   page: 200,
 } as const;
@@ -236,12 +240,31 @@ export async function createJoinRequest(
   name: string,
   email: string,
   note: string | null,
+  askedFrom: string | null = null,
 ): Promise<void> {
   await db()`
-    insert into join_requests (name, email, note)
-    values (${normaliseName(name)}, ${normaliseEmail(email)}, ${note})
+    insert into join_requests (name, email, note, asked_from)
+    values (${normaliseName(name)}, ${normaliseEmail(email)}, ${note}, ${askedFrom})
     on conflict do nothing
   `;
+}
+
+/** How many requests this origin has filed in the last hour. */
+export async function recentAskCount(askedFrom: string): Promise<number> {
+  const rows = (await db()`
+    select count(*)::int as n
+    from join_requests
+    where asked_from = ${askedFrom} and created_at > now() - interval '1 hour'
+  `) as Record<string, unknown>[];
+  return Number(rows[0]?.n ?? 0);
+}
+
+/** How many people are waiting to be decided on. */
+export async function pendingCount(): Promise<number> {
+  const rows = (await db()`
+    select count(*)::int as n from join_requests where status = 'pending'
+  `) as Record<string, unknown>[];
+  return Number(rows[0]?.n ?? 0);
 }
 
 export async function listPendingRequests(): Promise<JoinRequest[]> {

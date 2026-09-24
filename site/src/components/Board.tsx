@@ -338,6 +338,9 @@ function JoinForm({ name: initialName, email: initialEmail }: { name: string; em
   const [name, setName] = useState(initialName);
   const [email, setEmail] = useState(initialEmail);
   const [note, setNote] = useState("");
+  // Nobody sees this and nobody fills it in — except something reading the
+  // markup and answering every field it finds.
+  const [website, setWebsite] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -350,7 +353,7 @@ function JoinForm({ name: initialName, email: initialEmail }: { name: string; em
       const res = await fetch("/api/board/join", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name, email, note: note || undefined }),
+        body: JSON.stringify({ name, email, note: note || undefined, website }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -405,6 +408,14 @@ function JoinForm({ name: initialName, email: initialEmail }: { name: string; em
         onChange={(e) => setNote(e.target.value)}
         placeholder="Anything you want to say first (optional)"
         maxLength={500}
+      />
+      <input
+        className="board__trap"
+        value={website}
+        onChange={(e) => setWebsite(e.target.value)}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
       />
       <button type="submit" className="btn" disabled={state === "sending"}>
         {state === "sending" ? "Sending…" : "Ask"}

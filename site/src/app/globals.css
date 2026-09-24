@@ -1885,3 +1885,15 @@ h4 {
 }
 
 .board__private:hover { color: var(--text-dim); }
+
+/* The honeypot on the join form. Out of the layout, out of the tab order and
+   hidden from the accessibility tree — a person will never meet it, and
+   anything that fills it in is not reading the page. */
+.board__trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}

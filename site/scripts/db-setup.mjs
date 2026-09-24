@@ -57,6 +57,16 @@ await sql`
   )
 `;
 
+// Where a request came from, as a salted hash rather than the address itself —
+// enough to rate-limit a flood, not enough to be a record of who visited.
+await sql`
+  alter table join_requests add column if not exists asked_from text
+`;
+await sql`
+  create index if not exists join_requests_asked_from
+  on join_requests (asked_from, created_at desc)
+`;
+
 // One pending request per address. This is what makes the route's
 // "on conflict do nothing" fold repeat submissions into the first, so that
 // asking twice tells the asker nothing.
