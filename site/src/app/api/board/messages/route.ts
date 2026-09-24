@@ -3,6 +3,7 @@ import { fail, field, guard, json, readJson } from "@/lib/api";
 import {
   LIMITS,
   type Viewer,
+  authorOfMessage,
   findGuest,
   findHost,
   listMessages,
@@ -69,15 +70,30 @@ export async function POST(req: Request) {
       return fail(403, "That name and email are not on the guest list.");
     }
 
-    // Hers is the only inbox a private message could go to, so there is nobody
-    // for her own to be private from.
-    const isPrivate = !host && body.private === true;
+    // A guest writing privately is writing to Kaijsa — the only other end
+    // there is — so the recipient stays implied. She has to name one, and she
+    // names it by pointing at the message she is answering.
+    let isPrivate = !host && body.private === true;
+    let recipientId: string | null = null;
+
+    if (host && body.replyTo !== undefined) {
+      const replyTo = typeof body.replyTo === "string" || typeof body.replyTo === "number"
+        ? String(body.replyTo)
+        : null;
+      if (!replyTo || !/^\d+$/.test(replyTo)) {
+        return fail(400, "replyTo must be the id of a message.");
+      }
+      const to = await authorOfMessage(replyTo);
+      if (!to) return fail(404, "No message with that id, or its author is gone.");
+      isPrivate = true;
+      recipientId = to.guestId;
+    }
 
     if (await recentMessageCount(author.id) >= LIMITS.perMinute) {
       return fail(429, "Slow down a moment.");
     }
 
-    const message = await postMessage(author.id, author.name, text, isPrivate);
+    const message = await postMessage(author.id, author.name, text, isPrivate, recipientId);
     return json({ message }, 201);
   });
 }

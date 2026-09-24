@@ -84,6 +84,14 @@ await sql`
   alter table messages add column if not exists is_private boolean not null default false
 `;
 
+// Who a private message is for. A guest writing privately is writing to the
+// host, so this stays null and the host is implied; when Kaijsa answers one
+// privately it names the guest, and the pair of them are the only readers.
+// Null on an existing private row therefore still means exactly what it meant.
+await sql`
+  alter table messages add column if not exists recipient_id bigint references guests (id) on delete set null
+`;
+
 // The board is read newest-first and then reversed, and rate limiting counts a
 // guest's recent rows; both want this.
 await sql`create index if not exists messages_chronological on messages (created_at desc, id desc)`;

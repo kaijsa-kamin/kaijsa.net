@@ -18,14 +18,16 @@ export type BoardMessage = {
   body: string;
   at: string;
   host: boolean;
-  /** addressed to Kaijsa alone; never returned to anyone else */
+  /** addressed to one person rather than the room */
   private: boolean;
+  /** who it was addressed to; null means Kaijsa, who is always the other end */
+  to: string | null;
 };
 
 /**
  * Who is asking for the board. The host sees everything; a guest sees the
- * public board plus their own private messages; everyone else sees the public
- * board only.
+ * public board plus the private messages they wrote or were written to;
+ * everyone else sees the public board only.
  */
 export type Viewer = { host: true } | { host: false; guestId: string } | null;
 
@@ -90,15 +92,18 @@ export async function listMessages(viewer: Viewer = null): Promise<BoardMessage[
   const ownId = viewer && !viewer.host ? viewer.guestId : null;
 
   const rows = (await db()`
-    select id, author_name, body, created_at, is_host, is_private
+    select id, author_name, body, created_at, is_host, is_private, to_name
     from (
       select m.id, m.author_name, m.body, m.created_at, m.is_private,
-             coalesce(g.is_host, false) as is_host
+             coalesce(g.is_host, false) as is_host,
+             rec.name as to_name
       from messages m
       left join guests g on g.id = m.guest_id
+      left join guests rec on rec.id = m.recipient_id
       where m.is_private = false
          or ${isHost}::boolean = true
          or m.guest_id = ${ownId}::bigint
+         or m.recipient_id = ${ownId}::bigint
       order by m.created_at desc, m.id desc
       limit ${LIMITS.page}
     ) recent
@@ -112,6 +117,7 @@ export async function listMessages(viewer: Viewer = null): Promise<BoardMessage[
     at: new Date(r.created_at as string).toISOString(),
     host: Boolean(r.is_host),
     private: Boolean(r.is_private),
+    to: r.to_name === null || r.to_name === undefined ? null : String(r.to_name),
   }));
 }
 
@@ -165,10 +171,11 @@ export async function postMessage(
   authorName: string,
   body: string,
   isPrivate = false,
+  recipientId: string | null = null,
 ): Promise<BoardMessage> {
   const rows = (await db()`
-    insert into messages (guest_id, author_name, body, is_private)
-    values (${guestId}, ${authorName}, ${body}, ${isPrivate})
+    insert into messages (guest_id, author_name, body, is_private, recipient_id)
+    values (${guestId}, ${authorName}, ${body}, ${isPrivate}, ${recipientId}::bigint)
     returning id, author_name, body, created_at, is_private
   `) as Record<string, unknown>[];
 
@@ -176,6 +183,9 @@ export async function postMessage(
   const guest = (await db()`
     select is_host from guests where id = ${guestId}
   `) as Record<string, unknown>[];
+  const rec = recipientId
+    ? ((await db()`select name from guests where id = ${recipientId}`) as Record<string, unknown>[])
+    : [];
 
   return {
     id: String(r.id),
@@ -184,7 +194,26 @@ export async function postMessage(
     at: new Date(r.created_at as string).toISOString(),
     host: Boolean(guest[0]?.is_host),
     private: Boolean(r.is_private),
+    to: rec.length ? String(rec[0].name) : null,
   };
+}
+
+/**
+ * The guest who wrote a given message, so a private answer can be addressed
+ * back to them. Returns null for a message that no longer has an author —
+ * a removed guest leaves their messages standing but loses the link.
+ */
+export async function authorOfMessage(
+  messageId: string,
+): Promise<{ guestId: string; name: string } | null> {
+  const rows = (await db()`
+    select g.id, g.name
+    from messages m join guests g on g.id = m.guest_id
+    where m.id = ${messageId} and g.is_host = false
+    limit 1
+  `) as Record<string, unknown>[];
+  if (!rows.length) return null;
+  return { guestId: String(rows[0].id), name: String(rows[0].name) };
 }
 
 /* ---------------------------------------------------------------- requests */

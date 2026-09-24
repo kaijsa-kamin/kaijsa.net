@@ -10,6 +10,7 @@ type Message = {
   at: string;
   host: boolean;
   private: boolean;
+  to: string | null;
 };
 
 type Identity = { name: string; email: string };
@@ -41,6 +42,19 @@ function saveIdentity(id: Identity | null) {
   } catch {
     /* nothing to do — the board falls back to asking each time */
   }
+}
+
+/**
+ * What the badge on a private message says, from where you are standing.
+ * A private message has two readers and the label should tell you which of
+ * them you are — "private" alone leaves you guessing whether anyone else
+ * can see it.
+ */
+function privateLabel(m: Message, host: boolean, me: string | undefined): string {
+  if (m.host) return host ? `private to ${m.to ?? "someone"}` : "private to you";
+  if (host) return "private to you";
+  const mine = me && m.author.toLowerCase() === me.toLowerCase();
+  return mine ? "private to Kaijsa" : "private";
 }
 
 function when(iso: string): string {
@@ -205,7 +219,11 @@ export default function Board() {
                 <span className="msg__who">
                   {m.author}
                   <time dateTime={m.at}>{when(m.at)}</time>
-                  {m.private && <em className="msg__private">private</em>}
+                  {m.private && (
+                    <em className="msg__private">
+                      {privateLabel(m, host, identity?.name)}
+                    </em>
+                  )}
                 </span>
                 <div className="msg__body">{m.body}</div>
               </div>

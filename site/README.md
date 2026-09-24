@@ -358,9 +358,14 @@ curl -s -H "$H" $B/api/admin/requests
 curl -s -H "$H" -H 'content-type: application/json' \
   -d '{"action":"approve"}' $B/api/admin/requests/7
 
-# say something
+# say something to the room
 curl -s -H "$H" -H 'content-type: application/json' \
   -d '{"body":"I read it. Slowly."}' $B/api/board/messages
+
+# answer one person privately — replyTo names the message you are answering,
+# and the reply goes to its author and nobody else
+curl -s -H "$H" -H 'content-type: application/json' \
+  -d '{"body":"Only for you.","replyTo":30}' $B/api/board/messages
 
 # read the board (no header needed — everyone can read)
 curl -s $B/api/board/messages
