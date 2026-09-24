@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     const text = field(body, "body", LIMITS.body);
     if (!text) return fail(400, `A message must be 1–${LIMITS.body} characters.`);
 
-    const author = (await isHost())
+    const author = (await isHost(req))
       ? await findHost()
       : await guestFrom(body);
 

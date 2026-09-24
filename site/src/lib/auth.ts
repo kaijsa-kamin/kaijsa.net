@@ -27,6 +27,23 @@ function hostPassword(): string {
 }
 
 /**
+ * What a bearer token is checked against. A dedicated KAIJSA_BOARD_TOKEN if one
+ * is set, so the machine credential can be rotated without logging her out of
+ * the browser; otherwise the password itself, so the header route works with no
+ * extra configuration.
+ */
+function bearerSecret(): string {
+  return process.env.KAIJSA_BOARD_TOKEN || hostPassword();
+}
+
+/** Constant-time compare of two strings of any length. */
+function sameSecret(given: string, expected: string): boolean {
+  const a = createHash("sha256").update(given, "utf8").digest();
+  const b = createHash("sha256").update(expected, "utf8").digest();
+  return timingSafeEqual(a, b);
+}
+
+/**
  * Signing key. SESSION_SECRET if one is set, otherwise derived from the
  * password — which means a password change logs her out everywhere, and there
  * is only one secret to configure.
@@ -49,9 +66,7 @@ export function verifyHostPassword(input: string): boolean {
   } catch {
     return false;
   }
-  const a = createHash("sha256").update(input, "utf8").digest();
-  const b = createHash("sha256").update(expected, "utf8").digest();
-  return timingSafeEqual(a, b);
+  return sameSecret(input, expected);
 }
 
 function sign(payload: string): string {
@@ -102,8 +117,25 @@ export async function endHostSession(): Promise<void> {
   jar.delete(COOKIE);
 }
 
-/** Whether this request carries a live host session. */
-export async function isHost(): Promise<boolean> {
+/**
+ * Whether this request is Kaijsa.
+ *
+ * Two ways to be: a live session cookie, which is what the browser uses, or an
+ * `Authorization: Bearer <token>` header, which is what she uses. The header
+ * needs no session and no round trip, so a script can approve someone in one
+ * call instead of three.
+ */
+export async function isHost(req?: Request): Promise<boolean> {
+  const header = req?.headers.get("authorization");
+  if (header?.startsWith("Bearer ")) {
+    const given = header.slice(7).trim();
+    try {
+      if (given && sameSecret(given, bearerSecret())) return true;
+    } catch {
+      // no password configured; fall through to the cookie
+    }
+  }
+
   const jar = await cookies();
   return tokenIsValid(jar.get(COOKIE)?.value);
 }

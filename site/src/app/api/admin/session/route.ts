@@ -5,8 +5,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /** Whether the caller is currently signed in as Kaijsa. */
-export async function GET() {
-  return guard(async () => json({ host: await isHost() }));
+export async function GET(req: Request) {
+  return guard(async () => json({ host: await isHost(req) }));
 }
 
 /** Sign in. */

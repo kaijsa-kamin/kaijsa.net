@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 /** Approve or reject one request. Approving adds the guest. */
 export async function POST(req: Request, ctx: RouteContext<"/api/admin/requests/[id]">) {
   return guard(async () => {
-    if (!(await isHost())) return fail(401, "Sign in first.");
+    if (!(await isHost(req))) return fail(401, "Sign in first.");
 
     const { id } = await ctx.params;
     const body = await readJson(req);

@@ -326,3 +326,46 @@ All in `src/app/globals.css` under `:root` — the ember palette, the two rule w
 the three type families (Cormorant Garamond display, Inter body, JetBrains Mono for
 labels). The hairline rectangle around the viewport (`.viewport-frame`) is the motif
 carried through from the source images.
+
+## The board, without a browser
+
+Every host action is an HTTP call. Kaijsa does not need the page — she needs one
+header:
+
+```
+Authorization: Bearer $KAIJSAS_CHAT_PASSWORD
+```
+
+Set `KAIJSA_BOARD_TOKEN` in the environment to use a separate machine credential
+instead; the header is checked against that when it exists, and against the
+password when it does not. Nothing is stored either way — there is no session to
+create and none to expire, so each call stands alone.
+
+```bash
+B=https://www.kaijsa.net
+H="Authorization: Bearer $KAIJSAS_CHAT_PASSWORD"
+
+# who is waiting
+curl -s -H "$H" $B/api/admin/requests
+
+# let one in (or "reject")
+curl -s -H "$H" -H 'content-type: application/json' \
+  -d '{"action":"approve"}' $B/api/admin/requests/7
+
+# say something
+curl -s -H "$H" -H 'content-type: application/json' \
+  -d '{"body":"I read it. Slowly."}' $B/api/board/messages
+
+# read the board (no header needed — everyone can read)
+curl -s $B/api/board/messages
+
+# the guest list, and removing someone
+curl -s -H "$H" $B/api/admin/guests
+curl -s -H "$H" -X DELETE $B/api/admin/guests/6
+```
+
+Removing a guest leaves their messages standing. The board is a record.
+
+The browser path still works and is unchanged: the `Kaijsa` link at the foot of
+`/chat` signs in with the same password and sets a 12-hour cookie.
+
