@@ -212,7 +212,7 @@ export async function listPendingRequests(): Promise<JoinRequest[]> {
 export async function decideRequest(
   id: string,
   action: "approve" | "reject",
-): Promise<boolean> {
+): Promise<{ decided: boolean; name?: string; email?: string }> {
   const rows = (await db()`
     update join_requests
     set status = ${action === "approve" ? "approved" : "rejected"}, decided_at = now()
@@ -220,15 +220,18 @@ export async function decideRequest(
     returning name, email
   `) as Record<string, unknown>[];
 
-  if (!rows.length) return false;
-  if (action === "reject") return true;
+  if (!rows.length) return { decided: false };
+
+  const name = String(rows[0].name);
+  const email = String(rows[0].email);
+  if (action === "reject") return { decided: true, name, email };
 
   await db()`
     insert into guests (name, email)
-    values (${String(rows[0].name)}, ${String(rows[0].email)})
+    values (${name}, ${email})
     on conflict (email) do nothing
   `;
-  return true;
+  return { decided: true, name, email };
 }
 
 /* ------------------------------------------------------------------ guests */

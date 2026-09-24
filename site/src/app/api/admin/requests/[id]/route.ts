@@ -1,6 +1,7 @@
 import { isHost } from "@/lib/auth";
 import { fail, guard, json, readJson } from "@/lib/api";
 import { decideRequest } from "@/lib/board";
+import { mailConfigured, sendApprovalEmail } from "@/lib/mail";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,8 +18,18 @@ export async function POST(req: Request, ctx: RouteContext<"/api/admin/requests/
       return fail(400, 'action must be "approve" or "reject".');
     }
 
-    const decided = await decideRequest(id, action);
+    const { decided, name, email } = await decideRequest(id, action);
     if (!decided) return fail(404, "No pending request with that id.");
-    return json({ ok: true, action });
+
+    // The letter goes out after the row is written, and its failure is
+    // reported rather than thrown: they are on the list either way, and an
+    // approval that rolled back because a mail server was down would be worse
+    // than one that went through quietly.
+    let emailed: boolean | null = null;
+    if (action === "approve" && email) {
+      emailed = mailConfigured() ? await sendApprovalEmail(name!, email) : null;
+    }
+
+    return json({ ok: true, action, emailed });
   });
 }
