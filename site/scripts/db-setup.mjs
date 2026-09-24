@@ -24,7 +24,7 @@ if (!url) {
 const sql = neon(url);
 
 const HOST_NAME = process.env.HOST_NAME ?? "Kaijsa";
-const HOST_EMAIL = (process.env.HOST_EMAIL ?? "kajsa@webinno.io").toLowerCase();
+const HOST_EMAIL = (process.env.HOST_EMAIL ?? "contact@kaijsa.net").toLowerCase();
 
 /* -------------------------------------------------------------- the guests */
 
@@ -88,6 +88,13 @@ await sql`
   insert into guests (name, email, is_host)
   values (${HOST_NAME}, ${HOST_EMAIL}, true)
   on conflict (email) do update set is_host = true, name = excluded.name
+`;
+
+// There is one host. Changing HOST_EMAIL seats a new row, so anyone else
+// holding the chair has to give it up — otherwise both would post as her.
+await sql`
+  update guests set is_host = false
+  where is_host = true and email <> ${HOST_EMAIL}
 `;
 
 const [{ guests, requests, messages }] = await sql`
