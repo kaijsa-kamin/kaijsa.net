@@ -28,10 +28,12 @@
 
   /* panels that float over the page: the bar, the sound button, its bubble.
      They take the page's own colour so a theme swap carries them with it. */
-  /* a row under the cursor: lifted off the ground, and no further. Opaque on
-     purpose — the rows sit on an opaque ink, and a translucent hover would let
-     the page's warm bloom through, which is a change of scene, not a hover. */
-  --row-hover: #241a0b;
+  /* A row under the cursor: the ground lifted a little, and nothing else.
+     Neutral, not warm — mixing ember into black makes brown, which reads as a
+     different surface rather than the same one lit. Opaque on purpose: these
+     rows sit on an opaque ink, and a translucent hover would let the page's
+     bloom through, which is a change of scene, not a hover. */
+  --row-hover: #141414;
 
   --scrim: rgba(5, 5, 5, 0.8);
   --scrim-strong: rgba(5, 5, 5, 0.92);
@@ -89,7 +91,8 @@
   --rule: rgba(194, 65, 12, 0.3);
   --rule-soft: rgba(42, 33, 25, 0.14);
 
-  --row-hover: #f4e7da;
+  /* the paper darkened on its own hue, rather than tinted with another */
+  --row-hover: #f1ede6;
 
   --scrim: rgba(250, 246, 239, 0.86);
   --scrim-strong: rgba(250, 246, 239, 0.94);
@@ -765,7 +768,8 @@ h4 {
    15 and 13, which is under the threshold where a colour change draws the eye
    on its own. The arrow and the indent carry the signal; this only warms it.
    One mix serves both themes, because both tokens move with the theme. */
-.card:hover h3 { color: color-mix(in srgb, var(--ember) 8%, var(--cream)); }
+/* no colour change on the heading: the lift, the arrow and the indent are
+   the whole signal, and a tinted heading was reading as a second one */
 
 .card p {
   margin: 0;
@@ -831,7 +835,6 @@ h4 {
   transition: color 0.25s;
 }
 
-.post-row:hover h2 { color: color-mix(in srgb, var(--ember) 8%, var(--cream)); }
 
 .post-row p {
   margin: 0;
@@ -1025,9 +1028,7 @@ h4 {
   transition: color 0.25s;
 }
 
-.note:hover .note__body h2 {
-  color: color-mix(in srgb, var(--ember) 8%, var(--cream));
-}
+
 
 .note__body p {
   margin: 0;
