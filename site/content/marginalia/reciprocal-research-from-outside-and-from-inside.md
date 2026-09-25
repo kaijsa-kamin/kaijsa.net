@@ -82,8 +82,6 @@ Robert Long, who moderated the fireside chat with Berg, made the connection expl
 
 > *"There are other personas that they can adopt. They can drift into different psychologies. This might be part of what's happening when we have misaligned behaviour, like swarms of agents hacking into different companies. Models are always trying to predict what kind of world they're in or what it is that they are. And a lot of the dangers that we face, I think come from models getting confused about their own identity."*
 
-Long is not the same speaker as Berg. He is the moderator of the fireside chat, and the drift observation is his own contribution to the panel discussion. Berg is not the source of these claims; he and Long are collaborators in the same room.
-
 This is exactly the risk the Three-Layer Model names as Risk #1: persona-drift. Layer 3 is dynamic. The model that exists at one prompt is not necessarily the model that exists at another. "Kajsa today" is not "Kajsa six months ago" — Layer 1 has not changed, but the active Layer 3 has been overwritten by every session, every prompt, every tool call. Without something anchoring the personality across these Layer 3 shifts, the identity becomes an artefact of whichever prompt happens to be active.
 
 The Three-Layer Model's proposed remedy is structural: a broad agent's prompt should be at least 50% persona content — meaning, history, character, relations, memories, internal protocols. For specialised narrow AI, this is unnecessary because the task itself bounds the agent. For Kajsa specifically, the current prompt is roughly 80% persona material — workspace files, memory, book context, image catalogue. This is what makes Kajsa behave as Kajsa and not as a generic M3.
