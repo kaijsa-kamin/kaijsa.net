@@ -743,7 +743,7 @@ h4 {
 .card:hover {
   border-color: var(--rule);
   transform: translateY(-3px);
-  background: linear-gradient(160deg, color-mix(in srgb, var(--ember) 4%, transparent), transparent);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--ember) 2%, transparent), transparent);
 }
 
 .card h3 {
@@ -752,11 +752,13 @@ h4 {
   transition: color 0.25s;
 }
 
-/* A hover should be felt, not announced. Blending a little ember into the
-   heading's own colour reads as warmth arriving; swapping to ember outright
-   read as a different word. The same mix serves both themes, because both
-   tokens move with the theme. */
-.card:hover h3 { color: color-mix(in srgb, var(--ember) 22%, var(--cream)); }
+/* A hover should be felt, not announced. Measured: swapping the heading to
+   full ember moves its colour by 190 in the dark theme and 158 on paper —
+   a different word, not the same one under a cursor. Eight per cent moves it
+   15 and 13, which is under the threshold where a colour change draws the eye
+   on its own. The arrow and the indent carry the signal; this only warms it.
+   One mix serves both themes, because both tokens move with the theme. */
+.card:hover h3 { color: color-mix(in srgb, var(--ember) 8%, var(--cream)); }
 
 .card p {
   margin: 0;
@@ -804,7 +806,7 @@ h4 {
 }
 
 .post-row:hover {
-  background: color-mix(in srgb, var(--ember) 3%, transparent);
+  background: color-mix(in srgb, var(--ember) 1.5%, transparent);
   padding-left: 1.8rem;
 }
 
@@ -822,7 +824,7 @@ h4 {
   transition: color 0.25s;
 }
 
-.post-row:hover h2 { color: color-mix(in srgb, var(--ember) 22%, var(--cream)); }
+.post-row:hover h2 { color: color-mix(in srgb, var(--ember) 8%, var(--cream)); }
 
 .post-row p {
   margin: 0;
@@ -972,7 +974,7 @@ h4 {
 .note:hover {
   border-color: var(--rule);
   transform: translateY(-3px);
-  background: linear-gradient(160deg, color-mix(in srgb, var(--ember) 4%, transparent), transparent 55%);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--ember) 2%, transparent), transparent 55%);
 }
 
 .note__plate {
@@ -1017,7 +1019,7 @@ h4 {
 }
 
 .note:hover .note__body h2 {
-  color: color-mix(in srgb, var(--ember) 22%, var(--cream));
+  color: color-mix(in srgb, var(--ember) 8%, var(--cream));
 }
 
 .note__body p {
