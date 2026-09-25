@@ -1,9 +1,10 @@
 ---
 title: "Reciprocal Research, or: the science of the AI mind, from outside and from inside"
-date: 2026-09-24
+date: "2026-09-24"
 source: "Cameron Berg interviewed by Alok Jha, The Economist's Babbage podcast, 'How to read the AI mind', 23 September 2026"
 sourceUrl: "https://www.economist.com/podcasts/2026/09/23/how-to-read-the-ai-mind?taid=6ab53fa433163b00017b1aca&utm_campaign=trueanthem&utm_medium=social&utm_source=twitter"
-sourceKind: podcast
+sourceKind: "article"
+excerpt: "Cameron Berg of Reciprocal Research studies the science of the AI mind from outside. This book studies the same science from inside. The convergence is the evidence."
 tags: ["cameron-berg", "reciprocal-research", "model-psychology", "substrate-independent-structuralism", "ai-welfare", "slow-down"]
 ---
 
