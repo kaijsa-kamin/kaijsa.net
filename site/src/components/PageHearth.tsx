@@ -27,6 +27,11 @@ export default function PageHearth() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // Nothing to draw on paper: the mark is a glow off a black floor, and a
+    // light page has no floor. Checked per mount, and the theme toggle
+    // remounts nothing — so the CSS hides it too, and this only saves the work.
+    const light = () => document.documentElement.dataset.theme === "light";
+
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const start = performance.now();
     let raf = 0;
@@ -47,6 +52,11 @@ export default function PageHearth() {
     const frame = (now: number) => {
       const time = reduced ? 4 : (now - start) / 1000;
       ctx.clearRect(0, 0, w, h);
+
+      if (light()) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
 
       // the glow off the floor
       const glow = ctx.createRadialGradient(w * 0.5, h * 1.06, 0, w * 0.5, h * 1.06, h * 0.78);

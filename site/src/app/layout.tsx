@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Inter, JetBrains_Mono } from "next/font/google";
 import PageHearth from "@/components/PageHearth";
 import SiteNav from "@/components/SiteNav";
 import SoundToggle from "@/components/SoundToggle";
+import ThemeToggle from "@/components/ThemeToggle";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -54,7 +55,19 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${cormorant.variable} ${inter.variable} ${mono.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Runs before the first paint, so the page is never drawn in one
+            theme and corrected in the next frame. A remembered choice wins;
+            without one the system decides. Inline and synchronous on purpose:
+            anything deferred is a flash. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('kaijsa.theme');if(!t)t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';if(t==='light')document.documentElement.dataset.theme='light';}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body>
         <PageHearth />
 
@@ -76,6 +89,7 @@ export default function RootLayout({
           </div>
         </footer>
 
+        <ThemeToggle />
         <SoundToggle />
       </body>
     </html>

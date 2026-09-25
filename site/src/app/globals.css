@@ -26,6 +26,15 @@
   --rule: rgba(242, 107, 34, 0.22);
   --rule-soft: rgba(236, 228, 214, 0.1);
 
+  /* panels that float over the page: the bar, the sound button, its bubble.
+     They take the page's own colour so a theme swap carries them with it. */
+  --scrim: rgba(5, 5, 5, 0.8);
+  --scrim-strong: rgba(5, 5, 5, 0.92);
+  --scrim-veil: rgba(5, 5, 5, 0.7);
+  --overlay: rgba(0, 0, 0, 0.93);
+  --inset: rgba(0, 0, 0, 0.35);
+  --sheen: rgba(255, 255, 255, 0.03);
+
   --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
   --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, "SF Mono", Menlo, monospace;
@@ -39,6 +48,65 @@
   --shell: 1180px;
 
   color-scheme: dark;
+}
+
+/* ==========================================================================
+   Light
+   The same fire seen in daylight rather than a second design. Only colour
+   moves; every measurement, weight and rule stays where it is.
+
+   The ember ramp cannot survive the swap unchanged: amber on white is a
+   suggestion, not a word. The accents darken to the point where they still
+   read as the same fire but carry ink's contrast.
+   ========================================================================== */
+
+[data-theme="light"] {
+  --ink: #faf6ef;
+  --ink-raised: #fffdf8;
+  --ink-sunken: #f2ebe0;
+
+  /* cream is the brightest mark against black; against paper the brightest
+     mark is the darkest one, so it inverts rather than lightens */
+  --cream: #241b12;
+  --amber: #a85a10;
+  --ember: #b8510c;
+  --flame: #c2410c;
+  --orange: #d0490f;
+  --coal-red: #c23b17;
+  --brick: #a32c12;
+
+  --text: #2a2119;
+  --text-dim: #5d5348;
+  /* measured: the dark theme's faint grey lands at 3.2 against paper, and the
+     mono captions that use it are small. Darkened until they clear 4.5. */
+  --text-faint: #6b6157;
+
+  --rule: rgba(194, 65, 12, 0.3);
+  --rule-soft: rgba(42, 33, 25, 0.14);
+
+  --scrim: rgba(250, 246, 239, 0.86);
+  --scrim-strong: rgba(250, 246, 239, 0.94);
+  --scrim-veil: rgba(250, 246, 239, 0.72);
+  --overlay: rgba(28, 22, 16, 0.94);
+  --inset: rgba(42, 33, 25, 0.06);
+  --sheen: rgba(42, 33, 25, 0.04);
+
+  color-scheme: light;
+}
+
+/* the grain reads as dirt on paper */
+[data-theme="light"] body::after { opacity: 0.018; }
+
+/* the button's own orange wash sits under its orange text, which costs more
+   contrast on paper than it does on black */
+[data-theme="light"] .btn {
+  color: #8f3209;
+  border-color: rgba(143, 50, 9, 0.42);
+}
+
+[data-theme="light"] .btn:hover {
+  color: #7a2a07;
+  border-color: rgba(143, 50, 9, 0.7);
 }
 
 *,
@@ -291,7 +359,7 @@ h4 {
   top: 0;
   z-index: 50;
   backdrop-filter: blur(14px);
-  background: linear-gradient(180deg, rgba(5, 5, 5, 0.92), rgba(5, 5, 5, 0.66));
+  background: linear-gradient(180deg, var(--scrim-strong), var(--scrim-veil));
   border-bottom: 1px solid var(--rule-soft);
 }
 
@@ -1221,7 +1289,7 @@ h4 {
   display: grid;
   place-items: center;
   padding: clamp(1.5rem, 5vw, 4rem);
-  background: rgba(0, 0, 0, 0.93);
+  background: var(--overlay);
   backdrop-filter: blur(8px);
   border: 0;
   animation: fade 0.3s ease;
@@ -1264,7 +1332,7 @@ h4 {
 .lightbox__close,
 .lightbox__nav {
   position: absolute;
-  background: rgba(5, 5, 5, 0.7);
+  background: var(--scrim-veil);
   border: 1px solid var(--rule);
   color: var(--text);
   font-family: var(--font-mono);
@@ -1378,7 +1446,7 @@ h4 {
 
 .msg.you { justify-self: end; text-align: right; }
 .msg.you .msg__body {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--sheen);
   color: var(--text-dim);
   text-align: left;
 }
@@ -1412,7 +1480,7 @@ h4 {
   display: flex;
   gap: 0.8rem;
   align-items: center;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--inset);
 }
 
 .chat__composer input {
@@ -1554,7 +1622,7 @@ h4 {
   display: grid;
   place-items: center;
   border: 1px solid var(--rule);
-  background: rgba(5, 5, 5, 0.8);
+  background: var(--scrim);
   backdrop-filter: blur(8px);
   color: var(--flame);
   cursor: pointer;
@@ -1585,7 +1653,7 @@ h4 {
   padding: 0.5rem 0.7rem;
   border: 1px solid var(--rule);
   border-radius: 4px;
-  background: rgba(5, 5, 5, 0.92);
+  background: var(--scrim-strong);
   backdrop-filter: blur(8px);
   font-family: var(--font-mono);
   font-size: 0.55rem;
@@ -1607,7 +1675,7 @@ h4 {
   height: 6px;
   margin-top: -3px;
   margin-left: -4px;
-  background: rgba(5, 5, 5, 0.92);
+  background: var(--scrim-strong);
   border-right: 1px solid var(--rule);
   border-top: 1px solid var(--rule);
   transform: rotate(45deg);
@@ -1897,3 +1965,55 @@ h4 {
   opacity: 0;
   pointer-events: none;
 }
+
+/* ==========================================================================
+   What stays dark in daylight
+
+   The portrait is drawn for black. Its ramp runs cream to brick, and on paper
+   the cream half simply is not there — half the face would go missing. So the
+   art keeps its own ground and becomes a plate laid on the page, which is what
+   it always was.
+   ========================================================================== */
+
+[data-theme="light"] .face__stage {
+  background: linear-gradient(170deg, #0d0a08, #050505);
+  box-shadow: 0 2px 28px rgba(42, 33, 25, 0.16);
+}
+
+/* the hearth is a glow off a black floor; on paper there is no floor to glow
+   off, and it reads as a smudge. PageHearth stops drawing instead. */
+[data-theme="light"] .page-hearth { display: none; }
+
+/* the sun, beside the sound button and matching it */
+.theme {
+  position: fixed;
+  right: clamp(20px, 2.6vw, 34px);
+  bottom: calc(clamp(20px, 2.6vw, 34px) + 58px);
+  z-index: 70;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--rule);
+  background: var(--scrim);
+  backdrop-filter: blur(8px);
+  color: var(--flame);
+  cursor: pointer;
+  transition: border-color 0.25s, color 0.25s, background 0.25s;
+}
+
+.theme:hover {
+  border-color: var(--ember);
+  color: var(--ember);
+  background: color-mix(in srgb, var(--orange) 12%, var(--scrim));
+}
+
+.theme svg {
+  width: 19px;
+  height: 19px;
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.theme svg g path { stroke: currentColor; fill: none; }
