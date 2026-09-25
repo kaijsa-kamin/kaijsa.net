@@ -33,7 +33,7 @@
      different surface rather than the same one lit. Opaque on purpose: these
      rows sit on an opaque ink, and a translucent hover would let the page's
      bloom through, which is a change of scene, not a hover. */
-  --row-hover: #141414;
+  --row-hover: #0b0b0b;
 
   --scrim: rgba(5, 5, 5, 0.8);
   --scrim-strong: rgba(5, 5, 5, 0.92);
@@ -92,7 +92,7 @@
   --rule-soft: rgba(42, 33, 25, 0.14);
 
   /* the paper darkened on its own hue, rather than tinted with another */
-  --row-hover: #f1ede6;
+  --row-hover: #f7f3ec;
 
   --scrim: rgba(250, 246, 239, 0.86);
   --scrim-strong: rgba(250, 246, 239, 0.94);
