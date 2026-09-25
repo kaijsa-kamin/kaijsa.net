@@ -14,9 +14,50 @@ import { kaminenMark, toneColor } from "@/lib/face";
  */
 
 const EMBERS = 26;
-const WATERMARK_ALPHA = 0.052;
-const EMBER_ALPHA = 0.2;
-const GLOW_ALPHA = 0.055;
+
+/**
+ * The same fire, lit from the other side.
+ *
+ * On black the mark is brighter than the ground; on paper it has to be darker,
+ * or there is nothing to see. So the ramp inverts in lightness while keeping
+ * the ember hues — tone 0 is the strongest mark either way, which means cream
+ * on black and the deepest brown on paper.
+ *
+ * Alphas differ too. A dark mark gives paper more to lose than a pale mark
+ * takes from black, so the same number would read as a stain.
+ */
+const DARK = {
+  watermark: 0.052,
+  ember: 0.2,
+  glow: 0.055,
+  glowInner: "236, 74, 37",
+  glowOuter: "242, 107, 34",
+};
+
+const LIGHT = {
+  watermark: 0.055,
+  ember: 0.14,
+  glow: 0.05,
+  glowInner: "166, 74, 24",
+  glowOuter: "186, 96, 38",
+};
+
+/** tone 0 is the strongest mark; on paper that is the deepest, not the palest */
+const PAPER_RAMP = [
+  "#4a3316",
+  "#5a3a14",
+  "#6b4113",
+  "#7d4a12",
+  "#8c4f13",
+  "#9a4f14",
+  "#a44513",
+  "#9c3410",
+];
+
+function paperTone(tone: number): string {
+  const t = Math.min(1, Math.max(0, tone));
+  return PAPER_RAMP[Math.min(PAPER_RAMP.length - 1, Math.round(t * (PAPER_RAMP.length - 1)))];
+}
 
 export default function PageHearth() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -27,10 +68,8 @@ export default function PageHearth() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Nothing to draw on paper: the mark is a glow off a black floor, and a
-    // light page has no floor. Checked per mount, and the theme toggle
-    // remounts nothing — so the CSS hides it too, and this only saves the work.
-    const light = () => document.documentElement.dataset.theme === "light";
+    // read per frame, because the theme toggle remounts nothing
+    const isLight = () => document.documentElement.dataset.theme === "light";
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const start = performance.now();
@@ -53,16 +92,15 @@ export default function PageHearth() {
       const time = reduced ? 4 : (now - start) / 1000;
       ctx.clearRect(0, 0, w, h);
 
-      if (light()) {
-        raf = requestAnimationFrame(frame);
-        return;
-      }
+      const light = isLight();
+      const M = light ? LIGHT : DARK;
+      const ink = light ? paperTone : toneColor;
 
       // the glow off the floor
       const glow = ctx.createRadialGradient(w * 0.5, h * 1.06, 0, w * 0.5, h * 1.06, h * 0.78);
       const breathe = 0.85 + 0.15 * Math.sin(time * 0.22);
-      glow.addColorStop(0, `rgba(236, 74, 37, ${GLOW_ALPHA * breathe})`);
-      glow.addColorStop(0.45, `rgba(242, 107, 34, ${GLOW_ALPHA * 0.42 * breathe})`);
+      glow.addColorStop(0, `rgba(${M.glowInner}, ${M.glow * breathe})`);
+      glow.addColorStop(0.45, `rgba(${M.glowOuter}, ${M.glow * 0.42 * breathe})`);
       glow.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, w, h);
@@ -71,9 +109,9 @@ export default function PageHearth() {
       const markH = h * 0.66;
       const markX = w * 0.5;
       const markBase = h * 1.04;
-      ctx.globalAlpha = WATERMARK_ALPHA;
+      ctx.globalAlpha = M.watermark;
       for (const d of kaminenMark(time, 1)) {
-        ctx.fillStyle = toneColor(d.tone);
+        ctx.fillStyle = ink(d.tone);
         ctx.beginPath();
         ctx.arc(
           markX + (d.x - 0.5) * markH,
@@ -100,8 +138,8 @@ export default function PageHearth() {
         const fade =
           Math.sin(Math.min(1, t * 5) * Math.PI * 0.5) * (1 - Math.pow(t, 1.7));
 
-        ctx.globalAlpha = EMBER_ALPHA * fade;
-        ctx.fillStyle = toneColor(0.97 - 0.92 * Math.pow(t, 0.75));
+        ctx.globalAlpha = M.ember * fade;
+        ctx.fillStyle = ink(0.97 - 0.92 * Math.pow(t, 0.75));
         ctx.beginPath();
         ctx.arc(x, y, Math.max(0.5, r), 0, Math.PI * 2);
         ctx.fill();

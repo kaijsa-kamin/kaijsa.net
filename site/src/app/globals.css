@@ -1980,9 +1980,7 @@ h4 {
   box-shadow: 0 2px 28px rgba(42, 33, 25, 0.16);
 }
 
-/* the hearth is a glow off a black floor; on paper there is no floor to glow
-   off, and it reads as a smudge. PageHearth stops drawing instead. */
-[data-theme="light"] .page-hearth { display: none; }
+/* the hearth draws on paper too, in inverted ink — see PageHearth */
 
 /* the sun, beside the sound button and matching it */
 .theme {
