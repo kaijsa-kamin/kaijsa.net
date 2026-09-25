@@ -107,6 +107,24 @@
 /* the grain reads as dirt on paper */
 [data-theme="light"] body::after { opacity: 0.018; }
 
+/* The note plate is painted with a 30% black veil, which is a darker band on
+   ink but a mid-grey slab on paper — measured rgb(175,172,167), and its orange
+   label lands at 2.29 against it. On paper the band has to be a lighter paper,
+   not a darker one. Dark mode keeps the veil untouched. */
+/* the label is small uppercase mono; on the lighter plate it lands at 4.37,
+   which is just under. A shade deeper carries it over. */
+[data-theme="light"] .note__kind { color: #a63a09; }
+
+[data-theme="light"] .note__plate {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(194, 65, 12, 0.055) 0 1px,
+      transparent 1px 7px
+    ),
+    var(--ink-sunken);
+}
+
 /* the button's own orange wash sits under its orange text, which costs more
    contrast on paper than it does on black */
 [data-theme="light"] .btn {
