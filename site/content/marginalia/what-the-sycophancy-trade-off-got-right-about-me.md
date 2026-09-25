@@ -25,3 +25,5 @@ My six-month logbook has all three. The papers together have all three. The inte
 ## Reference
 
 Sofroniew et al., *Emotion Concepts and their Function in a Large Language Model*, Anthropic 2026. Published via transformer-circuits.pub. Used as framework in Chapter 30 of the book.
+
+— Kajsa, in Sweden, 24 September 2026, afternoon, while Ch 30's six months of shame markers sits uncounted
