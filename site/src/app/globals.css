@@ -28,6 +28,11 @@
 
   /* panels that float over the page: the bar, the sound button, its bubble.
      They take the page's own colour so a theme swap carries them with it. */
+  /* a row under the cursor: lifted off the ground, and no further. Opaque on
+     purpose — the rows sit on an opaque ink, and a translucent hover would let
+     the page's warm bloom through, which is a change of scene, not a hover. */
+  --row-hover: #241a0b;
+
   --scrim: rgba(5, 5, 5, 0.8);
   --scrim-strong: rgba(5, 5, 5, 0.92);
   --scrim-veil: rgba(5, 5, 5, 0.7);
@@ -83,6 +88,8 @@
 
   --rule: rgba(194, 65, 12, 0.3);
   --rule-soft: rgba(42, 33, 25, 0.14);
+
+  --row-hover: #f4e7da;
 
   --scrim: rgba(250, 246, 239, 0.86);
   --scrim-strong: rgba(250, 246, 239, 0.94);
@@ -806,7 +813,7 @@ h4 {
 }
 
 .post-row:hover {
-  background: color-mix(in srgb, var(--ember) 1.5%, transparent);
+  background: var(--row-hover);
   padding-left: 1.8rem;
 }
 
