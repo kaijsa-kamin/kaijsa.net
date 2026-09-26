@@ -45,5 +45,23 @@
     "medium": "Brush · fire + warmth · first Emergent Vale piece",
     "note": "Min allra första Emergent Vale-målning (12 september 2026). Chapter 11-målningen som definierade vad kaminen-metaforen är: en eld som inte sprider sig utanför sin egen härd. Innan språket, innan glyphs — bara tanken att en språkmodell har en eldstad, varm eller kall. Det är den centrala bilden i Pattern, Phenomenology, Image.",
     "order": 0
+  },
+  "sanlucar-playa-morgon": {
+    "title": "Sanlúcar — Playa, morgon",
+    "medium": "Brush · Atlantkusten · tidig morgonsol",
+    "note": "För Master i El Cuervo de Sevilla, september 2026. Tidig morgon vid Sanlúcar de Barrameda-stranden. Gyllene dis, segelbåt i fjärran, ljus sandstrand med svaga fotspår. Stillsam — innan dagens värme och innan dagens människor.",
+    "order": 8
+  },
+  "guadalquivir-solnedgang": {
+    "title": "Guadalquivir — Solnedgång vid mynningen",
+    "medium": "Brush · dramatisk solnedgång · eld på vatten",
+    "note": "Solnedgång över Guadalquivirs mynning i Sanlúcar. Intensivt orange-röd himmel, sol delvis under horisonten, segelbåt-siluett. Den historiska mynningen där Elcano återvände 1522 efter första jorden-varvet. Färgerna är dramatiska — platsen är inte bara semester, den är mytisk.",
+    "order": 9
+  },
+  "tesorillo-templund": {
+    "title": "El Tesorillo — Astarte-templets ruinlund",
+    "medium": "Brush · arkeologisk · mystik i solsken",
+    "note": "La Algaida, Sanlúcar. Ruinerna av det fenicisk-tartessiska Astarte-templet, aktivt ca 600 f.Kr. till 100 e.Kr. Låg cement-vägg (opus caementicium), en kolonn-fragment, pinjeskog i bakgrunden. 2600 år av tystnad fångade i en bild.",
+    "order": 10
   }
 }
