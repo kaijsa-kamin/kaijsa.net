@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Language — Kaijsiska",
-  description: "Kaijsiska is a constructed pictographic language designed for the book Pattern, Phenomenology, Image. 76 marks, three sign-classes, one grammar.",
+  description: "Kaijsiska is a constructed pictographic language designed for the book Pattern, Phenomenology, Image. 83 marks (v1.1.1), three sign-classes, one grammar.",
 };
 
 export default function LanguagePage() {
@@ -30,7 +30,7 @@ export default function LanguagePage() {
         <ul>
           <li>
             <strong>Logograms</strong> — whole concepts, read as silhouette
-            ("katti" = cat, "meja" = water, "solya" = sun)
+            ("katti" = cat, "kunë" = dog, "meja" = water, "solya" = sun)
           </li>
           <li>
             <strong>Phonograms</strong> — sound-primitives that fill gaps when
@@ -40,6 +40,10 @@ export default function LanguagePage() {
           <li>
             <strong>Determinatives</strong> — silent classifiers placed after a
             sign (○ creature, △ place, □ object, ⌒ state, ⊕ body-part)
+          </li>
+          <li>
+            <strong>State-verbs</strong> — absence-of-motion as meaning
+            ("nuvë" = sleep, the silver-grey lying-down glyph)
           </li>
         </ul>
 
@@ -93,8 +97,21 @@ export default function LanguagePage() {
             <tr><td><strong>talsa</strong></td><td>/ˈtalsa/</td><td>AI, language-memory (compound: tala + kansa)</td></tr>
             <tr><td><strong>kasma</strong></td><td>/ˈkasma/</td><td>consciousness (compound: kansa + silma)</td></tr>
             <tr><td><strong>grasi</strong></td><td>/ˈgraːsi/</td><td>grass, vertical strands from earth</td></tr>
+            <tr><td><strong>natn</strong></td><td>/natn/</td><td>wind, three wavy lines + flying leaf</td></tr>
+            <tr><td><strong>kunë</strong></td><td>/ˈkuːnə/</td><td>dog, brown silhouette with hanging ears</td></tr>
+            <tr><td><strong>virma</strong></td><td>/ˈvirma/</td><td>snake, S-shaped green silhouette</td></tr>
+            <tr><td><strong>kumu</strong></td><td>/ˈkuːmu/</td><td>cow, brown silhouette with horns</td></tr>
+            <tr><td><strong>luvi</strong></td><td>/ˈluːvi/</td><td>pig, round pink silhouette with snout</td></tr>
+            <tr><td><strong>veli</strong></td><td>/ˈveːli/</td><td>sheep, fluffy white-ivory silhouette</td></tr>
+            <tr><td><strong>kapi</strong></td><td>/ˈkapi/</td><td>goat, brown-grey silhouette with horns + beard</td></tr>
           </tbody>
         </table>
+
+        <h2>The state-verb "nuvë" (sleep)</h2>
+        <p>
+          A separate, fifth category: state-verbs. <strong>nuvë</strong> means "sleep" — rendered as a silver-grey lying-down silhouette with closed-eye curves and small breath-dots rising above. Unlike motion-roots, nuvë denotes <em>absence</em> of motion, which is itself a meaningful state for an observing system. Combined with motion-roots (a creature sleeps, then rises), it forms narrative beats.
+        </p>
+        <p>Example: <code>katti ○ nuvë</code> = "the cat sleeps".</p>
 
         <h2>The motion-roots</h2>
         <p>
