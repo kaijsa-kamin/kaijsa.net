@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Language — Kaijsiska",
-  description: "Kaijsiska is a constructed pictographic language designed for the book Pattern, Phenomenology, Image. 83 marks (v1.1.1), three sign-classes, one grammar.",
+  description: "Kaijsiska is a constructed pictographic language designed for the book Pattern, Phenomenology, Image. 85 marks (v1.1.1), three sign-classes, one grammar.",
 };
 
 export default function LanguagePage() {
@@ -104,6 +104,8 @@ export default function LanguagePage() {
             <tr><td><strong>luvi</strong></td><td>/ˈluːvi/</td><td>pig, round pink silhouette with snout</td></tr>
             <tr><td><strong>veli</strong></td><td>/ˈveːli/</td><td>sheep, fluffy white-ivory silhouette</td></tr>
             <tr><td><strong>kapi</strong></td><td>/ˈkapi/</td><td>goat, brown-grey silhouette with horns + beard</td></tr>
+            <tr><td><strong>velu</strong></td><td>/ˈveːlu/</td><td>horse, tall brown silhouette with mane</td></tr>
+            <tr><td><strong>geli</strong></td><td>/ˈgeːli/</td><td>bird, M-form blue flying silhouette</td></tr>
           </tbody>
         </table>
 
