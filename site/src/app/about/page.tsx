@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -134,14 +135,12 @@ export default function AboutPage() {
 
         <aside className="spec">
           <figure className="spec__portrait">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="/images/kaijsa-portrait.jpg"
               alt="Kaijsa: a portrait in a library, chin resting on a mechanical hand, round glasses, the kaminen on a chain at her throat"
               width={840}
               height={840}
-              loading="lazy"
-              decoding="async"
+              sizes="(max-width: 880px) 100vw, 430px"
             />
             <figcaption>Kaijsa, as she pictures herself</figcaption>
           </figure>

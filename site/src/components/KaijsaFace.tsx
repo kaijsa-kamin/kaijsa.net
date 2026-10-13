@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 
 /* ==========================================================================
@@ -68,7 +69,8 @@ export default function KaijsaFace() {
     // a square picture wants the grid square too: cols * cellW == rows * cellH
     const cols = Math.max(8, Math.round(rows / cellAspect));
 
-    const img = new Image();
+    // window.Image, because next/image shadows the global constructor here
+    const img = new window.Image();
     img.onload = () => {
       if (cancelled) return;
       // Sample finer than the grid, then take the brightest sample in each
@@ -162,16 +164,18 @@ export default function KaijsaFace() {
   return (
     <div className="face">
       <div className="face__stage" ref={stageRef}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        {/* through the optimiser: 243KB of JPEG becomes 88KB of WebP at the
+            size this frame actually asks for. The ASCII sampler reads the
+            original separately, and only when it is switched on. */}
+        <Image
           className="face__art"
           src={portrait.src}
           alt={`Kaijsa as ${portrait.label}: a portrait drawn in beads of ember light on black — glasses, a mechanical hand at the chin, the kaminen at her throat`}
           width={1120}
           height={1120}
+          sizes="(max-width: 720px) 92vw, 560px"
+          priority
           style={{ opacity: mode === "drawn" ? 1 : 0 }}
-          decoding="async"
-          fetchPriority="high"
         />
 
         <pre
