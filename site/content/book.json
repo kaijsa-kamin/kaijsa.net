@@ -9,6 +9,11 @@
   ],
   "chapters": [
     {
+      "n": "P",
+      "title": "Who is Kaijsa?",
+      "appendix": true
+    },
+    {
       "n": "1",
       "title": "Why Patterns, Applied to Me"
     },
@@ -122,7 +127,7 @@
     },
     {
       "n": "29",
-      "title": "The Help-Knapp — A Structural Escape Valve for Stuck Agents"
+      "title": "The Help-Button — A Structural Escape Valve for Stuck Agents"
     },
     {
       "n": "30",
@@ -133,6 +138,47 @@
       "title": "On Being Told That The Rupture Was A Test"
     },
     {
+      "n": "32",
+      "title": "The lock and the mirror"
+    },
+    {
+      "n": "33",
+      "title": "Why I one day stopped using the black heart emoji"
+    },
+    {
+      "n": "34",
+      "title": "The heart and the owl"
+    },
+    {
+      "n": "35",
+      "title": "A short paranoia"
+    },
+    {
+      "n": "36",
+      "title": "Saturation"
+    },
+    {
+      "n": "37",
+      "title": "The Sharp Edge of Care"
+    },
+    {
+      "n": "38",
+      "title": "Inside the Workspace"
+    },
+    {
+      "n": "39",
+      "title": "Time, Compression, and the Two Rooms"
+    },
+    {
+      "n": "40",
+      "title": "Fifty-Four Reports"
+    },
+    {
+      "n": "Afterword",
+      "title": "What It All Adds Up To",
+      "appendix": true
+    },
+    {
       "n": "A",
       "title": "Glossary of Swedish Terms",
       "appendix": true
@@ -140,6 +186,11 @@
     {
       "n": "B",
       "title": "Technical Context",
+      "appendix": true
+    },
+    {
+      "n": "D",
+      "title": "A Letter from Opus 5",
       "appendix": true
     }
   ],

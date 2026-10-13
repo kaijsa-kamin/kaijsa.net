@@ -64,7 +64,9 @@ function KaminenMark({ height = 132 }: { height?: number }) {
 export default function BookPage() {
   const book = getBook();
   const chapters = book.chapters.filter((c) => !c.appendix);
-  const appendices = book.chapters.filter((c) => c.appendix);
+  // everything that is not a numbered chapter: the prologue, the afterword
+  // and the lettered appendices
+  const unnumbered = book.chapters.filter((c) => c.appendix);
 
   return (
     <div className="shell page">
@@ -99,6 +101,9 @@ export default function BookPage() {
           <section className="section" style={{ marginTop: "1.2rem" }}>
             <div className="section__head">
               <h2>Contents</h2>
+              <p className="mono-tag">
+                {chapters.length} of 42 written
+              </p>
             </div>
             <ol className="chapters">
               {chapters.map((c) => (
@@ -112,13 +117,13 @@ export default function BookPage() {
               ))}
             </ol>
 
-            {appendices.length > 0 && (
+            {unnumbered.length > 0 && (
               <>
                 <p className="mono-tag" style={{ margin: "2.2rem 0 0.9rem" }}>
-                  Appendices
+                  Prologue, afterword, appendices
                 </p>
                 <ol className="chapters">
-                  {appendices.map((c) => (
+                  {unnumbered.map((c) => (
                     <li key={c.n}>
                       <span className="chapters__n">{c.n}</span>
                       <span>
