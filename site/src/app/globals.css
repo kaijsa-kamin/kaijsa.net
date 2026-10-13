@@ -548,13 +548,19 @@ h4 {
   aspect-ratio: 1;
 }
 
-.face__canvas,
+.face__art,
 .face__ascii {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   transition: opacity 0.5s ease;
+}
+
+/* her drawing, held inside the frame the generator used to paint */
+.face__art {
+  object-fit: cover;
+  border: 1px solid var(--rule);
 }
 
 .face__ascii {
@@ -576,6 +582,14 @@ h4 {
   display: block;
   white-space: pre;
   font: inherit;
+  /* scaled to the frame from a measurement; see KaijsaFace */
+  transform-origin: center;
+}
+
+/* each row is its own line; without this all fifty-six run together into one
+   very long one, which is what a <span> does by default */
+.face__row {
+  display: block;
 }
 
 .face__controls {
@@ -643,11 +657,8 @@ h4 {
   .face__break { display: none; }
   .face__dot { display: none; }
   .face__switch--variants {
-    /* measured: the labels wrap 4+3+3 anywhere from 244px to 276px wide, and
-       fall to a lopsided 4+4+2 above it. This sits mid-band. */
-    max-width: 16.25rem;
-    margin-inline: auto;
-    gap: 0.45rem 0.7rem;
+    /* three names fit one line; the old cap existed to balance ten */
+    gap: 0.45rem 0.8rem;
   }
 }
 
@@ -2007,6 +2018,7 @@ h4 {
    it always was.
    ========================================================================== */
 
+/* the drawings are made for black, so on paper the stage stays a plate */
 [data-theme="light"] .face__stage {
   background: linear-gradient(170deg, #0d0a08, #050505);
   box-shadow: 0 2px 28px rgba(42, 33, 25, 0.16);

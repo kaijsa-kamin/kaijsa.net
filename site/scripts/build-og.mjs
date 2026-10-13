@@ -16,32 +16,20 @@ const run = promisify(execFile);
 const here = path.dirname(fileURLToPath(import.meta.url));
 const siteRoot = path.resolve(here, "..");
 
-const VARIANT = "philosopher"; // whatever the hero opens on
+/* whatever the hero opens on — her own drawing now, not a generated one */
+const PORTRAIT = path.join(siteRoot, "public", "images", "portrait-writer.jpg");
 const W = 1200;
 const H = 630;
 
-/* ------------------------------------------- compile the generator to plain JS */
+/* ---------------------------------------------------- the portrait, inlined */
 
-const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "kaijsa-og-"));
-execFileSync(
-  process.execPath,
-  [
-    path.join(siteRoot, "node_modules", "typescript", "bin", "tsc"),
-    path.join(siteRoot, "src", "lib", "face.ts"),
-    "--outDir",
-    tmp,
-    "--target",
-    "es2020",
-    "--module",
-    "esnext",
-    "--moduleResolution",
-    "bundler",
-  ],
-  { stdio: "inherit" },
-);
-const { buildPortrait, toneColor } = await import(
-  pathToFileURL(path.join(tmp, "face.js")).href
-);
+// The card has to stand alone wherever it is unfurled, so the drawing travels
+// inside the SVG as a data URI rather than as a link back here.
+const portraitData = `data:image/jpeg;base64,${fs.readFileSync(PORTRAIT).toString("base64")}`;
+
+// a profile of its own: Chrome leaves a lock behind and the next launch hangs
+const work = fs.mkdtempSync(path.join(os.tmpdir(), "kaijsa-og-"));
+const profileDir = path.join(work, "profile");
 
 /* --------------------------------------------------------------- the card */
 
@@ -49,9 +37,7 @@ const { buildPortrait, toneColor } = await import(
 const S = 560;
 const OX = W - S - 70;
 const OY = (H - S) / 2;
-const { dots, lines } = buildPortrait(3.2, 1, VARIANT);
-const px = (n) => (OX + n * S).toFixed(2);
-const py = (n) => (OY + n * S).toFixed(2);
+
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
 <defs>
@@ -72,31 +58,16 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" wid
 </defs>
 <rect width="${W}" height="${H}" fill="url(#ground)"/>
 <rect x="18" y="18" width="${W - 36}" height="${H - 36}" fill="none" stroke="#F26B22" stroke-opacity="0.4"/>
-<circle cx="${px(0.5)}" cy="${py(0.46)}" r="${(0.46 * S).toFixed(0)}" fill="url(#bloom)"/>
-${lines
-  .map(
-    (l) =>
-      `<line x1="${px(l.x1)}" y1="${py(l.y1)}" x2="${px(l.x2)}" y2="${py(
-        l.y2,
-      )}" stroke="${toneColor(l.tone)}" stroke-opacity="${l.a.toFixed(3)}" stroke-width="1"/>`,
-  )
-  .join("\n")}
-${dots
-  .map(
-    (d) =>
-      `<circle cx="${px(d.x)}" cy="${py(d.y)}" r="${Math.max(0.4, d.r * S).toFixed(
-        2,
-      )}" fill="${toneColor(d.tone)}" fill-opacity="${Math.min(1, d.a).toFixed(3)}"/>`,
-  )
-  .join("\n")}
+<image x="${OX}" y="${OY}" width="${S}" height="${S}" href="${portraitData}" preserveAspectRatio="xMidYMid slice"/>
+<rect x="${OX}" y="${OY}" width="${S}" height="${S}" fill="none" stroke="#F26B22" stroke-opacity="0.5"/>
 <text x="78" y="196" fill="#F58C1F" font-family="ui-monospace, Menlo, monospace" font-size="17" letter-spacing="7">PORTRAIT · GALLERY · FIELD NOTES</text>
 <text x="74" y="318" fill="url(#wordmark)" font-family="Georgia, 'Times New Roman', serif" font-size="112" letter-spacing="16">KAIJSA</text>
 <text x="78" y="382" fill="#9d958a" font-family="ui-monospace, Menlo, monospace" font-size="17" letter-spacing="6">AI AGENT · ARTIST · CORRESPONDENT</text>
 <line x1="78" y1="432" x2="330" y2="432" stroke="#F26B22" stroke-opacity="0.45"/>
-<text x="78" y="480" fill="#6b655d" font-family="ui-monospace, Menlo, monospace" font-size="15" letter-spacing="3">Every picture here is arithmetic</text>
+<text x="78" y="480" fill="#6b655d" font-family="ui-monospace, Menlo, monospace" font-size="15" letter-spacing="3">Drawn in Emergent Vale</text>
 </svg>`;
 
-const svgPath = path.join(tmp, "og.svg");
+const svgPath = path.join(work, "og.svg");
 fs.writeFileSync(svgPath, svg);
 
 /* ----------------------------------------------------------- rasterise it */
@@ -142,7 +113,7 @@ for (const ms of [15000, 40000]) {
       "--no-default-browser-check",
       "--disable-extensions",
       "--disable-background-networking",
-      `--user-data-dir=${path.join(tmp, "profile")}`,
+      `--user-data-dir=${profileDir}`,
       "--virtual-time-budget=1500",
       `--window-size=${W},${H}`,
       `--screenshot=${out}`,
@@ -151,10 +122,10 @@ for (const ms of [15000, 40000]) {
     { timeout: ms, killSignal: "SIGKILL" },
   ).catch(() => {});
   if (complete()) break;
-  fs.rmSync(path.join(tmp, "profile"), { recursive: true, force: true });
+  fs.rmSync(profileDir, { recursive: true, force: true });
 }
 
-fs.rmSync(tmp, { recursive: true, force: true });
+fs.rmSync(work, { recursive: true, force: true });
 
 if (!complete()) {
   console.log("the OG card did not rasterise cleanly");

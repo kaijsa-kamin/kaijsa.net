@@ -1,373 +1,224 @@
 "use client";
 
-import { Fragment, useEffect, useRef, useState } from "react";
-import {
-  buildPortrait,
-  toneColor,
-  VARIANTS,
-  type Portrait,
-  type Variant,
-} from "@/lib/face";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 
-type Mode = "dots" | "ascii";
+/* ==========================================================================
+   The hero portrait.
 
-const RAMP = ".:-=+*#%@";
-const ASCII_ROWS = 52;
-const ASCII_ROWS_SMALL = 40;
-const ASCII_LINE_HEIGHT = 1.05;
-/** the character grid throws away a lot of light; give it back */
-const ASCII_FLOOR = 0.32;
-/** how many portrait names may share one line */
-const PER_ROW = 5;
+   These are her own drawings, not a generated approximation of them. The disc
+   generator that drew this before could not reach them — a hand against the
+   chin, headphones, hair in flowing beaded strands — and a cruder cousin of a
+   better picture is not worth the arithmetic.
 
-/** Offered under the portrait. Variants left out here are still built by
- *  buildPortrait and still appear in the archive — they are just not on the
- *  page. */
-const HIDDEN: Variant[] = ["oracle"];
-const CHOICES = VARIANTS.filter((v) => !HIDDEN.includes(v.id));
+   The generator has not gone anywhere: it still draws the kaminen in the page
+   ground, the mark on the book cover, and every variant in the archive at
+   /portraits.html. What changed is only which of the two belongs in the hero.
 
-/**
- * Character cells are not square and their aspect depends on the font that
- * actually loaded, so measure it rather than assume it.
- */
-function measureCellRatio(el: HTMLElement, fontSize: number): number {
-  const probe = document.createElement("span");
-  probe.textContent = "0".repeat(100);
-  probe.style.cssText =
-    "position:absolute;visibility:hidden;white-space:pre;left:-9999px;top:0";
-  probe.style.font = `${fontSize}px ${getComputedStyle(el).fontFamily}`;
-  document.body.appendChild(probe);
-  const cellW = probe.getBoundingClientRect().width / 100;
-  probe.remove();
-  return cellW / (fontSize * ASCII_LINE_HEIGHT);
-}
-const FRAME_MIN = 0.052;
-const FRAME_MAX = 0.948;
+   The ASCII reading survives the swap. It is sampled from the artwork's own
+   luminance rather than from geometry, so it works for whatever she puts here
+   next.
+   ========================================================================== */
 
-/* ------------------------------------------------------------------ canvas */
+type Portrait = { id: string; label: string; blurb: string; src: string };
 
-function paintCanvas(
-  ctx: CanvasRenderingContext2D,
-  p: Portrait,
-  w: number,
-  h: number,
-  time: number,
-) {
-  ctx.clearRect(0, 0, w, h);
+const PORTRAITS: Portrait[] = [
+  { id: "writer", label: "writer", src: "/images/portrait-writer.jpg", blurb: "pen down, listening" },
+  { id: "philosopher", label: "philosopher", src: "/images/portrait-philosopher.jpg", blurb: "haloed, mid-thought" },
+  { id: "researcher", label: "researcher", src: "/images/portrait-researcher.jpg", blurb: "close, unhaloed" },
+];
 
-  const s = Math.min(w, h);
-  const ox = (w - s) / 2;
-  const oy = (h - s) / 2;
-  const X = (x: number) => ox + x * s;
-  const Y = (y: number) => oy + y * s;
+const RAMP = " .:-=+*#%@";
+const ASCII_ROWS = 56;
+const ASCII_ROWS_SMALL = 42;
+/** the art is mostly black; below this the grid stays empty rather than noisy */
+const FLOOR = 0.05;
+const GAMMA = 0.62;
+/** samples per cell per axis — see the comment on the sampling loop */
+const SUB = 3;
 
-  // hairline frame — the signature of the series
-  ctx.save();
-  ctx.strokeStyle = "rgba(242, 107, 34, 0.55)";
-  ctx.lineWidth = Math.max(1, s * 0.0014);
-  const fo = s * FRAME_MIN;
-  ctx.strokeRect(ox + fo, oy + fo, s - fo * 2, s - fo * 2);
-  ctx.restore();
-
-  for (const l of p.lines) {
-    ctx.strokeStyle = toneColor(l.tone);
-    ctx.globalAlpha = l.a;
-    ctx.lineWidth = Math.max(0.6, s * 0.0011);
-    ctx.beginPath();
-    ctx.moveTo(X(l.x1), Y(l.y1));
-    ctx.lineTo(X(l.x2), Y(l.y2));
-    ctx.stroke();
-  }
-
-  // soft bloom behind the face
-  const glow = ctx.createRadialGradient(
-    X(0.5),
-    Y(0.46),
-    0,
-    X(0.5),
-    Y(0.46),
-    s * 0.4,
-  );
-  const pulse = 0.05 + 0.02 * Math.sin(time * 0.6);
-  glow.addColorStop(0, `rgba(249, 174, 51, ${pulse})`);
-  glow.addColorStop(0.55, `rgba(236, 74, 37, ${pulse * 0.35})`);
-  glow.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = glow;
-  ctx.fillRect(ox, oy, s, s);
-
-  for (const d of p.dots) {
-    ctx.globalAlpha = d.a;
-    ctx.fillStyle = toneColor(d.tone);
-    ctx.beginPath();
-    ctx.arc(X(d.x), Y(d.y), Math.max(0.5, d.r * s), 0, Math.PI * 2);
-    ctx.fill();
-  }
-  ctx.globalAlpha = 1;
-}
-
-/* ------------------------------------------------------------------- ascii */
-
-type Cell = { ch: string; tone: number; a: number };
-
-function esc(ch: string) {
-  return ch === "<" ? "&lt;" : ch === ">" ? "&gt;" : ch === "&" ? "&amp;" : ch;
-}
-
-function renderAscii(
-  p: Portrait,
-  cols: number,
-  rows: number,
-  cellRatio: number,
-): string {
-  const grid: (Cell | null)[] = new Array(cols * rows).fill(null);
-
-  // the face occupies a square; in character cells that square is
-  // `rows` tall and `rows / CELL_RATIO` wide.
-  const spanW = rows / cellRatio;
-  const ox = (cols - spanW) / 2;
-
-  const CX_ = (x: number) => ox + x * spanW;
-  const CY_ = (y: number) => y * rows;
-
-  const put = (cx: number, cy: number, cell: Cell) => {
-    const ix = Math.round(cx);
-    const iy = Math.round(cy);
-    if (ix < 0 || ix >= cols || iy < 0 || iy >= rows) return;
-    const i = iy * cols + ix;
-    const prev = grid[i];
-    if (!prev || RAMP.indexOf(cell.ch) >= RAMP.indexOf(prev.ch)) grid[i] = cell;
-  };
-
-  for (const l of p.lines) {
-    if (l.a < 0.3) continue;
-    const x1 = CX_(l.x1);
-    const y1 = CY_(l.y1);
-    const x2 = CX_(l.x2);
-    const y2 = CY_(l.y2);
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-    const steps = Math.ceil(Math.max(Math.abs(dx), Math.abs(dy)));
-    const slope = Math.abs(dy) < 0.4 ? "-" : Math.abs(dx) < 0.4 ? "|" : dx * dy > 0 ? "\\" : "/";
-    for (let i = 0; i <= steps; i++) {
-      const t = steps === 0 ? 0 : i / steps;
-      put(x1 + dx * t, y1 + dy * t, {
-        ch: slope,
-        tone: l.tone,
-        a: Math.max(ASCII_FLOOR, l.a),
-      });
-    }
-  }
-
-  for (const d of p.dots) {
-    const cx = CX_(d.x);
-    const cy = CY_(d.y);
-    const rx = d.r * spanW;
-    const ry = d.r * rows;
-
-    const a = Math.max(ASCII_FLOOR, d.a);
-
-    if (rx < 0.5) {
-      // too small for a disc, but its weight still belongs on the ramp
-      const ch = RAMP[Math.floor(Math.min(0.999, rx / 0.5) * 5)];
-      put(cx, cy, { ch, tone: d.tone, a });
-      continue;
-    }
-
-    const x0 = Math.floor(cx - rx);
-    const x1 = Math.ceil(cx + rx);
-    const y0 = Math.floor(cy - ry);
-    const y1 = Math.ceil(cy + ry);
-    for (let iy = y0; iy <= y1; iy++) {
-      for (let ix = x0; ix <= x1; ix++) {
-        const nx = (ix - cx) / rx;
-        const ny = (iy - cy) / ry;
-        const dist = Math.sqrt(nx * nx + ny * ny);
-        if (dist > 1) continue;
-        const density = Math.min(0.999, (1 - dist) * 0.55 + 0.45);
-        const ch = RAMP[Math.floor(density * RAMP.length)];
-        put(ix, iy, { ch, tone: d.tone, a });
-      }
-    }
-  }
-
-  // hairline frame — plain ASCII only: box-drawing glyphs fall back to another
-  // font with a different advance width, which shears the whole grid
-  const fx0 = Math.round(CX_(FRAME_MIN));
-  const fx1 = Math.round(CX_(FRAME_MAX));
-  const fy0 = Math.round(CY_(FRAME_MIN));
-  const fy1 = Math.round(CY_(FRAME_MAX));
-  const frame = (ix: number, iy: number, ch: string) => {
-    if (ix < 0 || ix >= cols || iy < 0 || iy >= rows) return;
-    const i = iy * cols + ix;
-    if (!grid[i]) grid[i] = { ch, tone: 0.55, a: 0.55 };
-  };
-  for (let ix = fx0; ix <= fx1; ix++) {
-    frame(ix, fy0, "-");
-    frame(ix, fy1, "-");
-  }
-  for (let iy = fy0; iy <= fy1; iy++) {
-    frame(fx0, iy, "|");
-    frame(fx1, iy, "|");
-  }
-  for (const [fx, fy] of [
-    [fx0, fy0],
-    [fx1, fy0],
-    [fx0, fy1],
-    [fx1, fy1],
-  ] as const) {
-    frame(fx, fy, "+");
-  }
-
-  // emit, grouping contiguous runs of identical style into one span
-  let out = "<code>";
-  for (let iy = 0; iy < rows; iy++) {
-    let run = "";
-    let key = "";
-    let color = "";
-    for (let ix = 0; ix < cols; ix++) {
-      const cell = grid[iy * cols + ix];
-      const c = cell ? toneColor(cell.tone) : "";
-      const alpha = cell ? Math.round(Math.min(1, cell.a) * 10) / 10 : 0;
-      const k = cell ? `${c}|${alpha}` : "";
-      if (k !== key) {
-        if (run) out += key ? `<span style="color:${color};opacity:${key.split("|")[1]}">${run}</span>` : run;
-        run = "";
-        key = k;
-        color = c;
-      }
-      run += cell ? esc(cell.ch) : " ";
-    }
-    if (run) out += key ? `<span style="color:${color};opacity:${key.split("|")[1]}">${run}</span>` : run;
-    out += "\n";
-  }
-  return `${out}</code>`;
-}
-
-/* --------------------------------------------------------------- component */
+/** her own ramp, so the characters carry the palette and not a flat orange */
+const TONES = ["#5a3414", "#8a4a16", "#ce2f17", "#f26b22", "#f9ae33", "#fbd070", "#fdf6e3"];
 
 export default function KaijsaFace() {
-  const [mode, setMode] = useState<Mode>("dots");
-  /** what the hero opens on */
-  const [variant, setVariant] = useState<Variant>("philosopher");
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const preRef = useRef<HTMLPreElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
+  const [portrait, setPortrait] = useState<Portrait>(PORTRAITS[0]);
+  const [mode, setMode] = useState<"drawn" | "ascii">("drawn");
+  const [grid, setGrid] = useState<{ ch: string; tone: number }[][]>([]);
+  /** measured after the grid lands, so the face fills its frame exactly */
+  const [fit, setFit] = useState(1);
+  const codeRef = useRef<HTMLElement>(null);
+  const asciiRef = useRef<HTMLPreElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * How wide a character is against how tall, measured from the grid that is
+   * actually on screen.
+   *
+   * A detached probe span lies about this: it reported 0.75 while the rendered
+   * cell was 0.28, because the probe does not inherit the block's line-height.
+   * Sampling a square picture into a grid built on the wrong number is what
+   * squeezed the face into a column.
+   */
+  const [cellAspect, setCellAspect] = useState(0.5);
 
   useEffect(() => {
-    let raf = 0;
-    let lastAscii = 0;
-    let lastFont = 0;
-    let cellRatio = 0.6 / ASCII_LINE_HEIGHT;
-    const start = performance.now();
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (mode !== "ascii") return;
+    let cancelled = false;
 
-    const tick = (now: number) => {
-      // reduced motion: hold a single, well-composed frame
-      const time = reduced ? 3.2 : (now - start) / 1000;
-      const wrap = wrapRef.current;
-      if (!wrap) {
-        raf = requestAnimationFrame(tick);
-        return;
-      }
-      const h = wrap.clientHeight;
-      const w = wrap.clientWidth;
+    const rows = window.innerWidth < 560 ? ASCII_ROWS_SMALL : ASCII_ROWS;
+    // a square picture wants the grid square too: cols * cellW == rows * cellH
+    const cols = Math.max(8, Math.round(rows / cellAspect));
 
-      if (mode === "dots") {
-        const canvas = canvasRef.current;
-        if (canvas) {
-          const dpr = Math.min(2, window.devicePixelRatio || 1);
-          if (
-            canvas.width !== Math.round(w * dpr) ||
-            canvas.height !== Math.round(h * dpr)
-          ) {
-            canvas.width = Math.round(w * dpr);
-            canvas.height = Math.round(h * dpr);
-            canvas.style.width = `${w}px`;
-            canvas.style.height = `${h}px`;
+    const img = new Image();
+    img.onload = () => {
+      if (cancelled) return;
+      // Sample finer than the grid, then take the brightest sample in each
+      // cell rather than the average. The drawing is thin bright beads on
+      // black: averaging a cell that holds one bead and eight black neighbours
+      // returns black, and the whole face dissolves. Taking the brightest keeps
+      // every stroke that crosses a cell.
+      const sw = cols * SUB;
+      const sh = rows * SUB;
+      const c = document.createElement("canvas");
+      c.width = sw;
+      c.height = sh;
+      const g = c.getContext("2d", { willReadFrequently: true });
+      if (!g) return;
+      g.drawImage(img, 0, 0, sw, sh);
+      const px = g.getImageData(0, 0, sw, sh).data;
+
+      const next: { ch: string; tone: number }[][] = [];
+      for (let y = 0; y < rows; y++) {
+        const line: { ch: string; tone: number }[] = [];
+        for (let x = 0; x < cols; x++) {
+          let peak = 0;
+          for (let dy = 0; dy < SUB; dy++) {
+            for (let dx = 0; dx < SUB; dx++) {
+              const i = ((y * SUB + dy) * sw + (x * SUB + dx)) * 4;
+              const lum = (px[i] * 0.2126 + px[i + 1] * 0.7152 + px[i + 2] * 0.0722) / 255;
+              if (lum > peak) peak = lum;
+            }
           }
-          const ctx = canvas.getContext("2d");
-          if (ctx) {
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            paintCanvas(ctx, buildPortrait(time, 1, variant), w, h, time);
-          }
+          const v = peak <= FLOOR ? 0 : Math.pow((peak - FLOOR) / (1 - FLOOR), GAMMA);
+          line.push({
+            ch: RAMP[Math.min(RAMP.length - 1, Math.round(v * (RAMP.length - 1)))],
+            tone: v,
+          });
         }
-      } else if (now - lastAscii > 70) {
-        // the character grid is far cheaper to look at than to rebuild
-        lastAscii = now;
-        const pre = preRef.current;
-        if (pre) {
-          const rows = h < 400 ? ASCII_ROWS_SMALL : ASCII_ROWS;
-          // size the type so `rows` lines fill the stage exactly
-          const fontSize = h / (rows * ASCII_LINE_HEIGHT);
-          if (fontSize !== lastFont) {
-            lastFont = fontSize;
-            pre.style.fontSize = `${fontSize}px`;
-            cellRatio = measureCellRatio(pre, fontSize);
-          }
-          const cols = Math.floor(w / (fontSize * ASCII_LINE_HEIGHT * cellRatio));
-          pre.innerHTML = renderAscii(
-            buildPortrait(time, 0.68, variant),
-            cols,
-            rows,
-            cellRatio,
-          );
-        }
+        next.push(line);
       }
 
-      raf = requestAnimationFrame(tick);
+      setGrid(next);
     };
+    img.src = portrait.src;
 
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [mode, variant]);
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, portrait, cellAspect]);
+
+  /** Correct the cell aspect from the grid on screen, once it differs enough
+   *  to matter. One pass settles it; the guard stops it oscillating. */
+  useEffect(() => {
+    if (mode !== "ascii" || !grid.length) return;
+    const code = codeRef.current;
+    if (!code) return;
+    const prev = code.style.transform;
+    code.style.transform = "scale(1)";
+    const box = code.getBoundingClientRect();
+    code.style.transform = prev;
+
+    const cols = grid[0]?.length ?? 1;
+    const measured = box.width / cols / (box.height / grid.length);
+    if (measured > 0 && Math.abs(measured - cellAspect) / cellAspect > 0.04) {
+      setCellAspect(measured);
+    }
+  }, [grid, mode, cellAspect]);
+
+  /**
+   * Scale the finished block to the frame.
+   *
+   * Computing a font size from the font's own metrics did not survive contact
+   * with them: the cell came out 3.12 by 11 against a predicted ratio of 0.75,
+   * and fifty-six rows overflowed a 468px frame by a third. Measuring the block
+   * after it exists and scaling it is indifferent to which font loaded.
+   */
+  useEffect(() => {
+    if (mode !== "ascii" || !grid.length) return;
+    const code = codeRef.current;
+    const stage = stageRef.current;
+    if (!code || !stage) return;
+
+    const prev = code.style.transform;
+    code.style.transform = "scale(1)";
+    const box = code.getBoundingClientRect();
+    code.style.transform = prev;
+
+    const s = stage.getBoundingClientRect();
+    if (box.width && box.height) {
+      setFit(Math.min(s.width / box.width, s.height / box.height));
+    }
+  }, [grid, mode]);
 
   return (
     <div className="face">
-      <div className="face__stage" ref={wrapRef}>
-        <canvas
-          ref={canvasRef}
-          className="face__canvas"
-          style={{ opacity: mode === "dots" ? 1 : 0 }}
-          aria-hidden="true"
+      <div className="face__stage" ref={stageRef}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className="face__art"
+          src={portrait.src}
+          alt={`Kaijsa as ${portrait.label}: a portrait drawn in beads of ember light on black — glasses, a mechanical hand at the chin, the kaminen at her throat`}
+          width={1120}
+          height={1120}
+          style={{ opacity: mode === "drawn" ? 1 : 0 }}
+          decoding="async"
+          fetchPriority="high"
         />
+
         <pre
-          ref={preRef}
           className="face__ascii"
+          ref={asciiRef}
           style={{ opacity: mode === "ascii" ? 1 : 0 }}
           aria-hidden="true"
-        />
-        <span className="sr-only">
-          A generative portrait of Kaijsa: a face drawn from concentric discs in
-          cream, amber and burnt orange on black, ringed by a slow constellation
-          of nodes.
-        </span>
+        >
+          <code ref={codeRef} style={{ transform: `scale(${fit})` }}>
+            {grid.map((line, y) => (
+              <span className="face__row" key={y}>
+                {line.map((cell, x) => (
+                  <span
+                    key={x}
+                    style={{
+                      color: TONES[Math.min(TONES.length - 1, Math.floor(cell.tone * TONES.length))],
+                    }}
+                  >
+                    {cell.ch}
+                  </span>
+                ))}
+              </span>
+            ))}
+          </code>
+        </pre>
       </div>
 
       <div className="face__controls">
         <div className="face__switch face__switch--variants" role="group" aria-label="Portrait">
-          {CHOICES.map((v, i) => (
-            <Fragment key={v.id}>
+          {PORTRAITS.map((p, i) => (
+            <Fragment key={p.id}>
               <span className="face__opt">
-                {i % PER_ROW !== 0 && (
+                {i !== 0 && (
                   <span className="face__dot" aria-hidden="true">
                     ·
                   </span>
                 )}
                 <button
                   type="button"
-                  className={variant === v.id ? "is-active" : ""}
-                  onClick={() => setVariant(v.id)}
-                  aria-pressed={variant === v.id}
-                  title={v.blurb}
+                  className={portrait.id === p.id ? "is-active" : ""}
+                  onClick={() => setPortrait(p)}
+                  aria-pressed={portrait.id === p.id}
+                  title={p.blurb}
                 >
-                  {v.label}
+                  {p.label}
                 </button>
               </span>
-              {/* a zero-height full-width item forces the flex line to break */}
-              {(i + 1) % PER_ROW === 0 && i < CHOICES.length - 1 && (
-                <span className="face__break" aria-hidden="true" />
-              )}
             </Fragment>
           ))}
         </div>
@@ -375,11 +226,11 @@ export default function KaijsaFace() {
         <div className="face__switch" role="group" aria-label="Rendering mode">
           <button
             type="button"
-            className={mode === "dots" ? "is-active" : ""}
-            onClick={() => setMode("dots")}
-            aria-pressed={mode === "dots"}
+            className={mode === "drawn" ? "is-active" : ""}
+            onClick={() => setMode("drawn")}
+            aria-pressed={mode === "drawn"}
           >
-            discs
+            drawn
           </button>
           <span aria-hidden="true">·</span>
           <button

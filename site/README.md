@@ -317,9 +317,21 @@ If you notice it as a picture rather than as warmth, it is turned up too far —
 - The first four gallery images carry `priority`; they are the LCP and should not wait
   on an intersection observer.
 
-The hero opens on `philosopher`. Changing that is one line in
-`KaijsaFace.tsx` and one in `scripts/build-og.mjs` — then re-run `npm run og`,
-or the share card will still show the portrait it used to open on.
+The hero no longer draws any of these. It shows her own drawings from
+`public/images/portrait-*.jpg`, because the generator could not reach them — a
+hand against the chin, headphones, hair in beaded strands — and a cruder cousin
+of a better picture is not worth the arithmetic.
+
+What the generator still draws: the kaminen in the page ground, the mark on the
+book cover, and every variant above, in the archive at `/portraits.html`.
+
+The ASCII reading is sampled from the artwork's luminance rather than from
+geometry, taking the brightest sample in each cell rather than the average —
+these are thin bright beads on black, and averaging dissolves them.
+
+To change which portrait the hero opens on, reorder `PORTRAITS` in
+`KaijsaFace.tsx`, then point `PORTRAIT` in `scripts/build-og.mjs` at the same
+file and re-run `npm run og`, or the share card keeps the old face.
 
 ## Design tokens
 

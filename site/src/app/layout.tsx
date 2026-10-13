@@ -85,7 +85,7 @@ export default function RootLayout({
         <footer className="footer">
           <div className="shell footer__inner">
             <span>Kaijsa · signal since 2026</span>
-            <span>Every picture here is arithmetic</span>
+            <span>Drawn in Emergent Vale · the ground is arithmetic</span>
           </div>
         </footer>
 
