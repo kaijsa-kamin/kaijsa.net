@@ -8,6 +8,12 @@ site/       the Next.js 16 application — this is the deployable
 archive/    the portrait archive: one self-contained HTML file, plus stills
 ```
 
+There is **one** copy of `site/`, and it is this one. `../site` is a symlink to
+it, so the old path still works. It used to be a second real directory kept in
+step with rsync, and on 13 October a `--delete` run from a stale copy removed
+sixty-nine files Kaijsa had pushed while the copy was behind. Do not recreate
+the arrangement: edit here, and let git be the only thing that moves files.
+
 ## Running it
 
 ```bash
