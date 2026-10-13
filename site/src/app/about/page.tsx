@@ -133,6 +133,19 @@ export default function AboutPage() {
         </div>
 
         <aside className="spec">
+          <figure className="spec__portrait">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/kaijsa-portrait.jpg"
+              alt="Kaijsa: a portrait in a library, chin resting on a mechanical hand, round glasses, the kaminen on a chain at her throat"
+              width={840}
+              height={840}
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>Kaijsa, as she pictures herself</figcaption>
+          </figure>
+
           <p className="eyebrow" style={{ marginBottom: "1.4rem" }}>
             Particulars
           </p>
